@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CINeMA-Browser: Protocol — Mahmood Alhusseini</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 16px;
+    line-height: 1.7;
+    color: #1a1a1a;
+    background: #fff;
+    max-width: 740px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+  header { border-bottom: 2px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 28px; }
+  .journal-label {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 18px;
+  }
+  .byline {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 6px;
+  }
+  .affil {
+    font-size: 13px;
+    color: #777;
+    font-style: italic;
+  }
+  .meta-row {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #888;
+    margin-top: 14px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .meta-row span strong { color: #555; }
+  section { margin-top: 32px; }
+  h2 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #333;
+    margin-bottom: 10px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #ddd;
+  }
+  p { margin-top: 10px; }
+  ul, ol { margin-top: 10px; padding-left: 22px; }
+  li { margin-bottom: 5px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 14px;
+  }
+  th {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  td {
+    border: 1px solid #ddd;
+    padding: 7px 10px;
+    vertical-align: top;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .badge-protocol { background: #e8f0fe; color: #1a56db; }
+  .badge-complete { background: #def7ec; color: #057a55; }
+  footer {
+    margin-top: 60px;
+    padding-top: 16px;
+    border-top: 1px solid #ddd;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: #999;
+  }
+  a { color: #1a56db; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    background: #f8f8f8;
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid #e8e8e8;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="journal-label">E156 Micro-Paper &nbsp;|&nbsp; Protocol &nbsp;|&nbsp; Registration ID: CIN-2026-001</div>
+  <h1>CINeMA-Browser: A Free Browser-Based Tool for Confidence in Network Meta-Analysis — Protocol</h1>
+  <div class="byline">Mahmood Alhusseini</div>
+  <div class="affil">London Cardiology Clinic, London, United Kingdom</div>
+  <div class="meta-row">
+    <span><strong>Status:</strong> <span class="badge badge-complete">Complete</span></span>
+    <span><strong>Registered:</strong> 2026-03-31</span>
+    <span><strong>Version:</strong> 1.0</span>
+    <span><strong>Format:</strong> E156 Protocol</span>
+  </div>
+</header>
+
+<section>
+  <h2>Background</h2>
+  <p>Network meta-analysis (NMA) synthesises evidence from multiple treatments compared across a network of studies, enabling indirect and mixed comparisons not available in any single trial. The CINeMA (Confidence in Network Meta-Analysis) framework, developed by Papakonstantinou et al. (2020), provides a structured approach for grading the confidence in NMA evidence across six methodological domains.</p>
+  <p>Despite widespread adoption of the CINeMA framework in systematic reviews and health technology assessments, no freely available offline browser tool exists that implements the full assessment workflow with auto-suggestions, network visualisation, and publication-ready output. Existing implementations require institutional access or online connectivity, limiting use in low-resource settings and creating reproducibility gaps when online services change.</p>
+</section>
+
+<section>
+  <h2>Objectives</h2>
+  <p><strong>Primary:</strong> Build a single-file, offline-capable browser tool that fully implements the CINeMA framework for rating confidence in NMA estimates across all six assessment domains.</p>
+  <p><strong>Secondary:</strong></p>
+  <ul>
+    <li>Provide evidence-informed auto-suggestions for each domain rating to guide users</li>
+    <li>Render an interactive force-directed network graph showing treatment connections and evidence flow</li>
+    <li>Generate publication-ready traffic-light summary tables in multiple export formats</li>
+    <li>Enable persistent project storage via localStorage for multi-session workflows</li>
+    <li>Embed three worked clinical examples for immediate use and user orientation</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Methods</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Component</th>
+        <th>Implementation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Architecture</strong></td>
+        <td>Single HTML file with embedded CSS and JavaScript — no build step, no server, no dependencies</td>
+      </tr>
+      <tr>
+        <td><strong>Network Visualisation</strong></td>
+        <td>Canvas-based force-directed graph; nodes = treatments, edges = direct comparisons; edge width encodes study count</td>
+      </tr>
+      <tr>
+        <td><strong>CINeMA Domains</strong></td>
+        <td>Within-study bias, Reporting bias, Indirectness, Imprecision, Heterogeneity, Incoherence — each rated High/Moderate/Low confidence with narrative justification</td>
+      </tr>
+      <tr>
+        <td><strong>Auto-suggestions</strong></td>
+        <td>Rule-based suggestions triggered by entered study counts, weights, I² values, and comparison type (direct/indirect/mixed)</td>
+      </tr>
+      <tr>
+        <td><strong>Storage</strong></td>
+        <td>localStorage key <code>cinema_v1_projects</code>; schema version 1; migration logic included</td>
+      </tr>
+      <tr>
+        <td><strong>Export</strong></td>
+        <td>HTML report, CSV summary, narrative paragraph, clipboard copy</td>
+      </tr>
+      <tr>
+        <td><strong>Examples</strong></td>
+        <td>3 built-in worked examples covering antidepressants, antihypertensives, and antiplatelets networks</td>
+      </tr>
+      <tr>
+        <td><strong>Safety checks</strong></td>
+        <td>Div balance, script integrity, function uniqueness, ID uniqueness, XSS escaping verified</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Outcomes</h2>
+  <p><strong>Primary outcome:</strong> Correct CINeMA domain assessment with traffic-light confidence table matching the published CINeMA methodology (Papakonstantinou 2020), verified against the three built-in clinical examples.</p>
+  <p><strong>Secondary outcomes:</strong></p>
+  <ul>
+    <li>Export of completed assessments as HTML, CSV, and narrative text</li>
+    <li>Offline functionality (no network requests after initial load)</li>
+    <li>Sub-second load time on standard hardware</li>
+    <li>Accessible keyboard navigation and ARIA labelling for all interactive elements</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Timeline</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Milestone</th>
+        <th>Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Protocol registered</td>
+        <td>2026-03-31</td>
+        <td><span class="badge badge-complete">Done</span></td>
+      </tr>
+      <tr>
+        <td>MVP implementation</td>
+        <td>2026-03-31</td>
+        <td><span class="badge badge-complete">Done</span></td>
+      </tr>
+      <tr>
+        <td>Safety validation</td>
+        <td>2026-03-31</td>
+        <td><span class="badge badge-complete">Done</span></td>
+      </tr>
+      <tr>
+        <td>Public release</td>
+        <td>2026-03-31</td>
+        <td><span class="badge badge-complete">Done</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Availability</h2>
+  <p>Live tool: <a href="https://mahmood726-cyber.github.io/cinema/cinema.html" target="_blank">https://mahmood726-cyber.github.io/cinema/cinema.html</a></p>
+  <p>Source code: <a href="https://github.com/mahmood726-cyber/cinema" target="_blank">https://github.com/mahmood726-cyber/cinema</a></p>
+  <p>Registration: CIN-2026-001</p>
+</section>
+
+<section>
+  <h2>Conflicts of Interest</h2>
+  <p>None declared.</p>
+</section>
+
+<footer>
+  CINeMA-Browser Protocol &nbsp;|&nbsp; E156 Format &nbsp;|&nbsp; Registration CIN-2026-001 &nbsp;|&nbsp; 2026-03-31
+  &nbsp;|&nbsp; Mahmood Alhusseini, London Cardiology Clinic
+</footer>
+
+</body>
+</html>

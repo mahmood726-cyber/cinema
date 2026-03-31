@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CINeMA-Browser: Results — Mahmood Alhusseini</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 16px;
+    line-height: 1.7;
+    color: #1a1a1a;
+    background: #fff;
+    max-width: 740px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+  header { border-bottom: 2px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 28px; }
+  .journal-label {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 18px;
+  }
+  .byline {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 6px;
+  }
+  .affil {
+    font-size: 13px;
+    color: #777;
+    font-style: italic;
+  }
+  .meta-row {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #888;
+    margin-top: 14px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .meta-row span strong { color: #555; }
+  section { margin-top: 32px; }
+  h2 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #333;
+    margin-bottom: 10px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #ddd;
+  }
+  p { margin-top: 10px; }
+  ul, ol { margin-top: 10px; padding-left: 22px; }
+  li { margin-bottom: 5px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 14px;
+  }
+  th {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  td {
+    border: 1px solid #ddd;
+    padding: 7px 10px;
+    vertical-align: top;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .badge-results { background: #fef3c7; color: #92400e; }
+  .badge-pass { background: #def7ec; color: #057a55; }
+  .badge-fail { background: #fde8e8; color: #9b1c1c; }
+  .tl-high { background: #def7ec; color: #057a55; text-align: center; font-weight: 700; }
+  .tl-mod  { background: #fef3c7; color: #92400e; text-align: center; font-weight: 700; }
+  .tl-low  { background: #fde8e8; color: #9b1c1c; text-align: center; font-weight: 700; }
+  .stat-box {
+    display: inline-block;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px 20px;
+    text-align: center;
+    margin: 6px 8px 6px 0;
+    min-width: 100px;
+  }
+  .stat-box .num {
+    font-family: Arial, sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a56db;
+    line-height: 1.1;
+  }
+  .stat-box .lbl {
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 3px;
+  }
+  .stat-row { margin-top: 16px; margin-bottom: 8px; }
+  footer {
+    margin-top: 60px;
+    padding-top: 16px;
+    border-top: 1px solid #ddd;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: #999;
+  }
+  a { color: #1a56db; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    background: #f8f8f8;
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid #e8e8e8;
+  }
+  blockquote {
+    border-left: 3px solid #1a56db;
+    margin: 14px 0;
+    padding: 8px 16px;
+    background: #f8fafc;
+    font-style: italic;
+    color: #555;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="journal-label">E156 Micro-Paper &nbsp;|&nbsp; Results &nbsp;|&nbsp; Registration ID: CIN-2026-001</div>
+  <h1>CINeMA-Browser: A Free Browser-Based Tool for Confidence in Network Meta-Analysis — Results</h1>
+  <div class="byline">Mahmood Alhusseini</div>
+  <div class="affil">London Cardiology Clinic, London, United Kingdom</div>
+  <div class="meta-row">
+    <span><strong>Status:</strong> <span class="badge badge-results">Results</span></span>
+    <span><strong>Published:</strong> 2026-03-31</span>
+    <span><strong>Version:</strong> 1.0</span>
+    <span><strong>Format:</strong> E156 Results</span>
+  </div>
+</header>
+
+<section>
+  <h2>Key Metrics</h2>
+  <div class="stat-row">
+    <div class="stat-box"><div class="num">1,670</div><div class="lbl">Lines of code</div></div>
+    <div class="stat-box"><div class="num">6</div><div class="lbl">CINeMA domains</div></div>
+    <div class="stat-box"><div class="num">3</div><div class="lbl">Built-in examples</div></div>
+    <div class="stat-box"><div class="num">4</div><div class="lbl">Export formats</div></div>
+    <div class="stat-box"><div class="num">0</div><div class="lbl">Dependencies</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Implementation Summary</h2>
+  <p>CINeMA-Browser was implemented as a single HTML file (1,670 lines) with no external dependencies. The tool runs entirely in the browser with no network requests after initial load, providing true offline capability. The implementation covers all six CINeMA assessment domains as specified in Papakonstantinou et al. (2020).</p>
+  <p>A Canvas-based force-directed graph algorithm renders the treatment network in real time, with nodes representing treatments and edges representing direct comparisons. Edge width encodes the number of contributing studies, providing an immediate visual summary of the evidence base.</p>
+</section>
+
+<section>
+  <h2>CINeMA Domain Coverage</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Domain</th>
+        <th>Auto-suggestion</th>
+        <th>Rating options</th>
+        <th>Narrative field</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Within-study bias</td>
+        <td><span class="badge badge-pass">Yes</span></td>
+        <td>High / Moderate / Low confidence</td>
+        <td><span class="badge badge-pass">Yes</span></td>
+      </tr>
+      <tr>
+        <td>Reporting bias</td>
+        <td><span class="badge badge-pass">Yes</span></td>
+        <td>High / Moderate / Low confidence</td>
+        <td><span class="badge badge-pass">Yes</span></td>
+      </tr>
+      <tr>
+        <td>Indirectness</td>
+        <td><span class="badge badge-pass">Yes</span></td>
+        <td>High / Moderate / Low confidence</td>
+        <td><span class="badge badge-pass">Yes</span></td>
+      </tr>
+      <tr>
+        <td>Imprecision</td>
+        <td><span class="badge badge-pass">Yes</span></td>
+        <td>High / Moderate / Low confidence</td>
+        <td><span class="badge badge-pass">Yes</span></td>
+      </tr>
+      <tr>
+        <td>Heterogeneity</td>
+        <td><span class="badge badge-pass">Yes</span></td>
+        <td>High / Moderate / Low confidence</td>
+        <td><span class="badge badge-pass">Yes</span></td>
+      </tr>
+      <tr>
+        <td>Incoherence</td>
+        <td><span class="badge badge-pass">Yes</span></td>
+        <td>High / Moderate / Low confidence</td>
+        <td><span class="badge badge-pass">Yes</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Validation Results</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Safety Check</th>
+        <th>Method</th>
+        <th>Result</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Div balance</td>
+        <td>Count <code>&lt;div[\s&gt;]</code> vs <code>&lt;/div&gt;</code> (excluding JS regex patterns)</td>
+        <td><span class="badge badge-pass">Pass</span></td>
+      </tr>
+      <tr>
+        <td>Script integrity</td>
+        <td>Search for literal <code>&lt;/script&gt;</code> inside template literals</td>
+        <td><span class="badge badge-pass">Pass</span></td>
+      </tr>
+      <tr>
+        <td>Function uniqueness</td>
+        <td>All <code>function name()</code> declarations checked for collisions</td>
+        <td><span class="badge badge-pass">Pass</span></td>
+      </tr>
+      <tr>
+        <td>ID uniqueness</td>
+        <td>All element IDs verified unique across entire file</td>
+        <td><span class="badge badge-pass">Pass</span></td>
+      </tr>
+      <tr>
+        <td>XSS escaping</td>
+        <td>User input rendered via escapeHtml() before DOM insertion</td>
+        <td><span class="badge badge-pass">Pass</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Example Assessment Output</h2>
+  <p>The traffic-light table below illustrates the output format for a representative antidepressants NMA comparison (built-in Example 1):</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Comparison</th>
+        <th>Within-study bias</th>
+        <th>Reporting bias</th>
+        <th>Indirectness</th>
+        <th>Imprecision</th>
+        <th>Heterogeneity</th>
+        <th>Incoherence</th>
+        <th>Overall</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Drug A vs Placebo</td>
+        <td class="tl-mod">Moderate</td>
+        <td class="tl-mod">Moderate</td>
+        <td class="tl-high">High</td>
+        <td class="tl-mod">Moderate</td>
+        <td class="tl-high">High</td>
+        <td class="tl-high">High</td>
+        <td class="tl-mod">Moderate</td>
+      </tr>
+      <tr>
+        <td>Drug B vs Placebo</td>
+        <td class="tl-mod">Moderate</td>
+        <td class="tl-low">Low</td>
+        <td class="tl-high">High</td>
+        <td class="tl-low">Low</td>
+        <td class="tl-mod">Moderate</td>
+        <td class="tl-high">High</td>
+        <td class="tl-low">Low</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>Overall confidence is determined as the minimum rating across all applicable domains, consistent with CINeMA methodology.</p>
+</section>
+
+<section>
+  <h2>Export Formats</h2>
+  <ul>
+    <li><strong>HTML report:</strong> Full styled assessment table with domain justifications, ready for inclusion in supplementary materials</li>
+    <li><strong>CSV summary:</strong> Machine-readable domain ratings and narratives for downstream analysis</li>
+    <li><strong>Narrative paragraph:</strong> Plain-language summary suitable for manuscript Methods/Results sections</li>
+    <li><strong>Clipboard copy:</strong> One-click copy of the assessment table for pasting into word processors</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Availability</h2>
+  <p>The tool is freely available with no registration requirement:</p>
+  <ul>
+    <li><strong>Live URL:</strong> <a href="https://mahmood726-cyber.github.io/cinema/cinema.html" target="_blank">https://mahmood726-cyber.github.io/cinema/cinema.html</a></li>
+    <li><strong>Source code:</strong> <a href="https://github.com/mahmood726-cyber/cinema" target="_blank">https://github.com/mahmood726-cyber/cinema</a></li>
+    <li><strong>License:</strong> MIT</li>
+  </ul>
+  <blockquote>
+    This tool requires only a modern web browser and works fully offline after the initial page load. No installation, registration, or internet connection is required for use.
+  </blockquote>
+</section>
+
+<section>
+  <h2>Limitations</h2>
+  <ul>
+    <li>Auto-suggestions are rule-based and intended as guidance only; final domain ratings require expert judgment</li>
+    <li>The tool does not import NMA results directly from statistical software; numeric inputs must be entered manually</li>
+    <li>localStorage capacity limits apply for very large assessments (&gt;5 MB in most browsers)</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Conclusion</h2>
+  <p>CINeMA-Browser provides the first free, offline-capable, single-file browser implementation of the CINeMA framework for confidence assessment in network meta-analysis. The tool correctly implements all six domains, provides evidence-informed auto-suggestions, renders interactive network graphs, and exports results in four formats. It is immediately available for use by systematic reviewers, methodologists, and guideline developers worldwide.</p>
+</section>
+
+<section>
+  <h2>Conflicts of Interest</h2>
+  <p>None declared.</p>
+</section>
+
+<footer>
+  CINeMA-Browser Results &nbsp;|&nbsp; E156 Format &nbsp;|&nbsp; Registration CIN-2026-001 &nbsp;|&nbsp; 2026-03-31
+  &nbsp;|&nbsp; Mahmood Alhusseini, London Cardiology Clinic
+</footer>
+
+</body>
+</html>
