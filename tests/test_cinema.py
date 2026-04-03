@@ -283,7 +283,7 @@ class TestCINeMA(unittest.TestCase):
     # 22. getAutoSuggestions — heterogeneity
     # ================================================================
     def test_22_autosugg_heterogeneity(self):
-        """Large tau relative to SE triggers heterogeneity concern."""
+        """Large tau relative to SE triggers heterogeneity concern (major when PI >3x CI)."""
         sugg = self.js("""
             state.effectMeasure = 'MD';
             state.clinThreshold = 5;
@@ -291,8 +291,8 @@ class TestCINeMA(unittest.TestCase):
             return getAutoSuggestions(comp);
         """)
         self.assertIn('het', sugg)
-        # SE ~= (6.0-4.0)/3.92 = 0.51; PI range ~ large vs CI range ~ 2
-        self.assertIn('warn', sugg['het']['level'])
+        # SE ~= (6.0-4.0)/3.92 = 0.51; PI range ~11.93 vs CI range ~2.0 => >3x => flag (Major)
+        self.assertEqual(sugg['het']['level'], 'flag')
 
     # ================================================================
     # 23. getAutoSuggestions — incoherence

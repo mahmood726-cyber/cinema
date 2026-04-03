@@ -886,10 +886,10 @@ function getAutoSuggestions(comp){
     const piHi = comp.effect + 1.96*Math.sqrt(se*se+tau*tau);
     const ciRange = comp.ciHi-comp.ciLo;
     const piRange = piHi-piLo;
-    if(piRange > ciRange*2){
-      sugg.het = {level:'warn', text:'Prediction interval ('+piLo.toFixed(2)+' to '+piHi.toFixed(2)+') is >2× the CI width — consider Some concern for heterogeneity.'};
-    } else if(piRange > ciRange*3){
+    if(piRange > ciRange*3){
       sugg.het = {level:'flag', text:'Prediction interval much wider than CI — consider Major concern for heterogeneity.'};
+    } else if(piRange > ciRange*2){
+      sugg.het = {level:'warn', text:'Prediction interval ('+piLo.toFixed(2)+' to '+piHi.toFixed(2)+') is >2× the CI width — consider Some concern for heterogeneity.'};
     } else {
       sugg.het = {level:'ok', text:'Prediction interval similar to CI width (tau='+tau.toFixed(3)+').'};
     }
