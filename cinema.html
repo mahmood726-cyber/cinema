@@ -640,7 +640,10 @@ function handleModalKey(e){
 }
 document.querySelectorAll('.modal-overlay').forEach(m=>{
   m.addEventListener('click', function(e){
-    if(e.target===this) this.classList.remove('open');
+    if(e.target===this){
+      this.classList.remove('open');
+      document.removeEventListener('keydown', handleModalKey);
+    }
   });
 });
 
@@ -866,10 +869,10 @@ function getAutoSuggestions(comp){
         sugg.imp = {level:'ok', text:'CI width within threshold range.'};
       }
     } else {
-      if(ciWidth > 2*Math.abs(thresh)){
-        sugg.imp = {level:'warn', text:'CI width ('+ciWidth.toFixed(2)+') exceeds 2× clinical threshold ('+thresh+') — consider Some concern.'};
-      } else if(ciWidth > 3*Math.abs(thresh)){
+      if(ciWidth > 3*Math.abs(thresh)){
         sugg.imp = {level:'flag', text:'CI width greatly exceeds threshold — consider Major concern.'};
+      } else if(ciWidth > 2*Math.abs(thresh)){
+        sugg.imp = {level:'warn', text:'CI width ('+ciWidth.toFixed(2)+') exceeds 2× clinical threshold ('+thresh+') — consider Some concern.'};
       } else {
         sugg.imp = {level:'ok', text:'CI width within clinical threshold range.'};
       }
@@ -1224,8 +1227,9 @@ function downloadCSV(){
       const v=a[d.id]||'no';
       return v==='no'?'No concern':v==='some'?'Some concern':'Major concern';
     })).concat([conf]).map(v=>{
-      const s=String(v);
-      // Prevent CSV injection (no negative values in these fields)
+      let s=String(v);
+      // Prevent CSV formula injection
+      if(/^[=+@\t\r]/.test(s)) s="'"+s;
       return '"'+s.replace(/"/g,'""')+'"';
     });
   });
@@ -1667,4 +1671,5 @@ adjustGridLayout();
 window.addEventListener('resize', adjustGridLayout);
 </script>
 </body>
+</html>
 </html>

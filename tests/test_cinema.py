@@ -277,7 +277,7 @@ class TestCINeMA(unittest.TestCase):
             return getAutoSuggestions(comp);
         """)
         self.assertIn('imp', sugg)
-        self.assertEqual(sugg['imp']['level'], 'warn')
+        self.assertEqual(sugg['imp']['level'], 'flag')  # CI width 12 > 3*threshold 6 => Major concern
 
     # ================================================================
     # 22. getAutoSuggestions — heterogeneity
