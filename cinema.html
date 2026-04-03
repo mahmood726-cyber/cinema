@@ -101,6 +101,7 @@ textarea{resize:vertical;min-height:60px}
 .pill{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .6rem;border-radius:999px;background:var(--primary-light);color:var(--primary);font-size:.78rem;font-weight:500}
 .pill-remove{cursor:pointer;font-size:.9rem;line-height:1;border:none;background:none;color:var(--primary);padding:0;margin-left:.1rem}
 .pill-remove:hover{color:var(--verylow)}
+.pill-remove:focus-visible{outline:2px solid var(--primary);outline-offset:1px;border-radius:2px}
 .comp-list{margin-top:.5rem;display:flex;flex-direction:column;gap:.4rem}
 .comp-item{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;background:var(--surface2);border-radius:6px;border:1px solid var(--border);flex-wrap:wrap}
 .comp-label{font-size:.83rem;font-weight:600;flex:1;min-width:120px}
@@ -242,7 +243,7 @@ table.cinema-table tr:hover td{background:var(--surface2)}
       <button class="icon-btn" onclick="clearAll()" title="Clear all data">Clear</button>
       <div class="tooltip">Clear all data and start fresh</div>
     </div>
-    <button class="icon-btn" onclick="toggleDark()" id="darkBtn" title="Toggle dark mode">Dark</button>
+    <button class="icon-btn" onclick="toggleDark()" id="darkBtn" title="Toggle dark mode" aria-label="Toggle dark mode">Dark</button>
   </div>
 </header>
 
@@ -550,6 +551,10 @@ function mkPRNG(seed){
   };
 }
 
+// ===== ID COUNTER (deterministic alternative to Math.random for IDs) =====
+let _idCounter = 0;
+function nextId(prefix) { return prefix + '_' + Date.now() + '_' + (++_idCounter); }
+
 // ===== STATE =====
 let state = {
   treatments:[],
@@ -678,7 +683,7 @@ function addTreatment(){
   if(state.treatments.some(t=>t.name.toLowerCase()===name.toLowerCase())){
     alert('A treatment with this name already exists.');return;
   }
-  const id = 'tx_'+Date.now()+'_'+Math.floor(Math.random()*1000);
+  const id = nextId('tx');
   state.treatments.push({id, name, short, color});
   closeModal('treatmentModal');
   renderAll();
@@ -731,7 +736,7 @@ function addComparison(){
   const direct = parseFloat(document.getElementById('compDirect').value);
   const tau    = parseFloat(document.getElementById('compTau').value);
   const directEst = parseFloat(document.getElementById('compDirect95').value);
-  const id = 'comp_'+Date.now()+'_'+Math.floor(Math.random()*1000);
+  const id = nextId('comp');
   state.comparisons.push({
     id, txA, txB,
     effect: isFinite(effect) ? effect : null,
@@ -815,10 +820,6 @@ function escHtml(s){
 }
 
 function formatEffect(eff, lo, hi){
-  const em = state.effectMeasure || 'MD';
-  if(em==='OR'||em==='RR'||em==='HR'){
-    return eff.toFixed(2) + (lo!==null&&hi!==null ? ' ('+lo.toFixed(2)+', '+hi.toFixed(2)+')':'');
-  }
   return eff.toFixed(2) + (lo!==null&&hi!==null ? ' ('+lo.toFixed(2)+', '+hi.toFixed(2)+')':'');
 }
 
@@ -1508,7 +1509,10 @@ function drawNetwork(){
     for(let i=0;i<3;i++) simulateStep();
     drawFrame();
     iter++;
-    if(iter<120&&simRunning) animFrame=requestAnimationFrame(frame);
+    // Convergence: stop early if total kinetic energy is negligible
+    let totalKE=0;
+    nodes.forEach(n=>{totalKE+=n.vx*n.vx+n.vy*n.vy;});
+    if(iter<120&&simRunning&&totalKE>0.01) animFrame=requestAnimationFrame(frame);
     else simRunning=false;
   }
   animFrame=requestAnimationFrame(frame);

@@ -38,28 +38,23 @@ Clicking modal overlay closes modal but does not call `removeEventListener('keyd
 `addComparison` does not validate that `ciLo < ciHi`. Reversed CIs would produce incorrect auto-suggestions (SE calculation, PI computation).
 **Status:** Noted
 
-## P2 (Minor)
+## P2 (Minor) — all fixed 2026-04-03
 
 ### P2-1: `formatEffect` has duplicated branches
-**Lines:** 814-819
-The `if(em==='OR'||em==='RR'||em==='HR')` branch and `else` branch produce identical output. Dead code.
+**Status:** FIXED — Removed dead code; collapsed to single branch returning `eff.toFixed(2)` with optional CI.
 
 ### P2-2: `Math.random()` used in ID generation
-**Lines:** 678, 731
-Treatment and comparison IDs use `Math.random()` instead of seeded PRNG. Not used for reproducible outputs so acceptable, but inconsistent with the seeded PRNG pattern established at line 541.
+**Status:** FIXED — Replaced with deterministic counter (`nextId()` function using incrementing `_idCounter`).
 
 ### P2-3: Network graph simulation runs 120 frames regardless
-**Line:** 1507
-Force-directed layout always runs 120 iterations. Could detect convergence and stop early for performance.
+**Status:** FIXED — Added convergence detection: stops early when total kinetic energy < 0.01.
 
 ### P2-4: Missing `aria-label` on dark mode toggle
-**Line:** 245
-`#darkBtn` has title but no aria-label for screen readers.
+**Status:** FIXED — Added `aria-label="Toggle dark mode"` to `#darkBtn`.
 
 ### P2-5: No keyboard navigation for treatment/comparison pills
-**Lines:** 762-767
-Pill remove buttons lack keyboard focus indicators.
+**Status:** FIXED — Added `focus-visible` outline style for `.pill-remove` buttons.
 
 ---
 
-**Summary:** 2 P0 fixed, 4 P1 found (1 fixed), 5 P2 found
+**Summary:** 2 P0 fixed, 4 P1 found (2 fixed, 2 noted), 5 P2 fixed
