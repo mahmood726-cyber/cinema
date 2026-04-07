@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CINeMA — Confidence in Network Meta-Analysis</title>
+<style>
+/* ===== CSS RESET & VARIABLES ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8fafc;--surface:#ffffff;--surface2:#f1f5f9;--border:#e2e8f0;
+  --text:#1e293b;--text2:#64748b;--text3:#94a3b8;
+  --primary:#2563eb;--primary-hover:#1d4ed8;--primary-light:#eff6ff;
+  --high:#16a34a;--high-bg:#f0fdf4;--high-border:#bbf7d0;
+  --moderate:#2563eb;--moderate-bg:#eff6ff;--moderate-border:#bfdbfe;
+  --low:#ea580c;--low-bg:#fff7ed;--low-border:#fed7aa;
+  --verylow:#dc2626;--verylow-bg:#fef2f2;--verylow-border:#fecaca;
+  --no-concern:#16a34a;--no-bg:#f0fdf4;--no-border:#bbf7d0;
+  --some-concern:#d97706;--some-bg:#fffbeb;--some-border:#fde68a;
+  --major-concern:#dc2626;--major-bg:#fef2f2;--major-border:#fecaca;
+  --radius:8px;--radius-lg:12px;--shadow:0 1px 3px rgba(0,0,0,.1);
+  --shadow-md:0 4px 6px rgba(0,0,0,.07),0 1px 3px rgba(0,0,0,.1);
+  --transition:0.18s ease;
+  --font:'Segoe UI',system-ui,-apple-system,sans-serif;
+}
+body.dark{
+  --bg:#0f172a;--surface:#1e293b;--surface2:#0f172a;--border:#334155;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
+  --primary:#3b82f6;--primary-hover:#2563eb;--primary-light:#1e3a5f;
+  --high-bg:#052e16;--high-border:#166534;
+  --moderate-bg:#1e3a5f;--moderate-border:#1d4ed8;
+  --low-bg:#431407;--low-border:#7c2d12;
+  --verylow-bg:#450a0a;--verylow-border:#7f1d1d;
+  --no-bg:#052e16;--no-border:#166534;
+  --some-bg:#451a03;--some-border:#92400e;
+  --major-bg:#450a0a;--major-border:#7f1d1d;
+}
+html{font-family:var(--font);font-size:15px;background:var(--bg);color:var(--text);transition:background var(--transition),color var(--transition)}
+body{min-height:100vh;display:flex;flex-direction:column}
+
+/* ===== HEADER ===== */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;gap:1rem;height:56px;box-shadow:var(--shadow);position:sticky;top:0;z-index:100}
+.brand{display:flex;align-items:center;gap:.6rem;font-weight:700;font-size:1.1rem;color:var(--primary);white-space:nowrap}
+.brand-icon{width:28px;height:28px;background:var(--primary);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:900;flex-shrink:0}
+.brand-sub{font-size:.7rem;font-weight:400;color:var(--text2);display:block;line-height:1}
+header nav{display:flex;gap:.25rem;flex:1;overflow-x:auto;padding:.5rem 0;scrollbar-width:none}
+header nav::-webkit-scrollbar{display:none}
+.tab-btn{padding:.4rem .9rem;border-radius:6px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:.85rem;white-space:nowrap;font-family:inherit;transition:background var(--transition),color var(--transition);font-weight:500}
+.tab-btn:hover{background:var(--surface2);color:var(--text)}
+.tab-btn.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+.header-actions{display:flex;gap:.5rem;align-items:center;flex-shrink:0}
+.icon-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:.3rem .55rem;cursor:pointer;color:var(--text2);font-size:.85rem;transition:all var(--transition);font-family:inherit}
+.icon-btn:hover{background:var(--surface2);color:var(--text)}
+
+/* ===== MAIN ===== */
+main{flex:1;padding:1.5rem;max-width:1280px;width:100%;margin:0 auto}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ===== CARDS & SECTIONS ===== */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;box-shadow:var(--shadow)}
+.card+.card{margin-top:1rem}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:.75rem}
+.card-title{font-weight:700;font-size:.95rem;color:var(--text)}
+.section-label{font-size:.78rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .85rem;border-radius:6px;border:none;cursor:pointer;font-family:inherit;font-size:.84rem;font-weight:500;transition:all var(--transition);white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-hover)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2)}
+.btn-outline:hover{background:var(--surface2);color:var(--text)}
+.btn-danger{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.btn-danger:hover{background:#fee2e2}
+.btn-sm{padding:.3rem .6rem;font-size:.78rem}
+.btn-success{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+.btn-success:hover{background:#dcfce7}
+
+/* ===== FORMS ===== */
+.form-row{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:.75rem}
+.form-group{display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:140px}
+.form-group.full{flex:0 0 100%}
+label{font-size:.8rem;font-weight:600;color:var(--text2)}
+input[type=text],input[type=number],select,textarea{
+  padding:.45rem .7rem;border:1px solid var(--border);border-radius:6px;
+  background:var(--surface);color:var(--text);font-family:inherit;font-size:.875rem;
+  transition:border-color var(--transition),box-shadow var(--transition);width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+textarea{resize:vertical;min-height:60px}
+.hint{font-size:.75rem;color:var(--text3);margin-top:.15rem}
+
+/* ===== NETWORK GRAPH ===== */
+#networkCanvas{display:block;width:100%;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);cursor:grab;touch-action:none}
+#networkCanvas:active{cursor:grabbing}
+.graph-legend{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.6rem;font-size:.78rem;color:var(--text2)}
+.legend-item{display:flex;align-items:center;gap:.35rem}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* ===== TREATMENT & COMPARISON LISTS ===== */
+.pill-list{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
+.pill{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .6rem;border-radius:999px;background:var(--primary-light);color:var(--primary);font-size:.78rem;font-weight:500}
+.pill-remove{cursor:pointer;font-size:.9rem;line-height:1;border:none;background:none;color:var(--primary);padding:0;margin-left:.1rem}
+.pill-remove:hover{color:var(--verylow)}
+.pill-remove:focus-visible{outline:2px solid var(--primary);outline-offset:1px;border-radius:2px}
+.comp-list{margin-top:.5rem;display:flex;flex-direction:column;gap:.4rem}
+.comp-item{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;background:var(--surface2);border-radius:6px;border:1px solid var(--border);flex-wrap:wrap}
+.comp-label{font-size:.83rem;font-weight:600;flex:1;min-width:120px}
+.comp-stats{font-size:.78rem;color:var(--text2);display:flex;gap:.75rem;flex-wrap:wrap}
+
+/* ===== DOMAIN CARDS ===== */
+.domain-grid{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));margin-top:.75rem}
+.domain-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:1rem;transition:border-color var(--transition)}
+.domain-card.no-concern{border-color:var(--no-border);background:var(--no-bg)}
+.domain-card.some-concern{border-color:var(--some-border);background:var(--some-bg)}
+.domain-card.major-concern{border-color:var(--major-border);background:var(--major-bg)}
+.domain-title{font-size:.88rem;font-weight:700;margin-bottom:.3rem;display:flex;align-items:center;gap:.5rem}
+.domain-desc{font-size:.76rem;color:var(--text2);margin-bottom:.75rem;line-height:1.4}
+.radio-group{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem}
+.radio-option{display:flex;align-items:center;gap:.35rem}
+.radio-option input[type=radio]{accent-color:var(--primary);width:14px;height:14px;cursor:pointer}
+.radio-option label{font-size:.78rem;font-weight:500;cursor:pointer;color:var(--text)}
+.suggestion-box{margin-top:.5rem;padding:.4rem .6rem;border-radius:5px;font-size:.75rem;border-left:3px solid;background:var(--surface)}
+.suggestion-box.warn{border-color:var(--some-concern);background:var(--some-bg);color:var(--some-concern)}
+.suggestion-box.ok{border-color:var(--no-concern);background:var(--no-bg);color:var(--no-concern)}
+.suggestion-box.flag{border-color:var(--major-concern);background:var(--major-bg);color:var(--major-concern)}
+.domain-footnote{margin-top:.5rem}
+.domain-footnote textarea{font-size:.76rem;min-height:44px;padding:.35rem .5rem}
+
+/* ===== CONFIDENCE BADGE ===== */
+.confidence-display{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;border-radius:var(--radius-lg);border:2px solid var(--border);margin-bottom:1rem;background:var(--surface)}
+.confidence-label{font-size:.78rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em}
+.confidence-value{font-size:1.15rem;font-weight:800}
+.conf-high{color:var(--high)}
+.conf-moderate{color:var(--moderate)}
+.conf-low{color:var(--low)}
+.conf-verylow{color:var(--verylow)}
+.downgrade-info{font-size:.78rem;color:var(--text2);line-height:1.4}
+.conf-bar{display:flex;gap:2px;margin-top:.4rem}
+.conf-bar-seg{height:6px;flex:1;border-radius:2px;background:var(--border);transition:background var(--transition)}
+.conf-bar-seg.filled-high{background:var(--high)}
+.conf-bar-seg.filled-moderate{background:var(--moderate)}
+.conf-bar-seg.filled-low{background:var(--low)}
+.conf-bar-seg.filled-verylow{background:var(--verylow)}
+
+/* ===== CINeMA TABLE ===== */
+.cinema-table-wrap{overflow-x:auto;border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow)}
+table.cinema-table{width:100%;border-collapse:collapse;font-size:.8rem}
+table.cinema-table th{background:var(--surface2);padding:.55rem .75rem;text-align:left;font-weight:700;font-size:.73rem;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--border);white-space:nowrap}
+table.cinema-table td{padding:.5rem .75rem;border-bottom:1px solid var(--border);vertical-align:middle}
+table.cinema-table tr:last-child td{border-bottom:none}
+table.cinema-table tr:hover td{background:var(--surface2)}
+.domain-cell{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:.7rem;font-weight:700}
+.domain-cell.nc{background:#dcfce7;color:#166534}
+.domain-cell.sc{background:#fef9c3;color:#854d0e}
+.domain-cell.mc{background:#fee2e2;color:#991b1b}
+.domain-cell.na{background:var(--surface2);color:var(--text3)}
+.conf-badge{display:inline-flex;padding:.2rem .55rem;border-radius:999px;font-size:.75rem;font-weight:700;white-space:nowrap}
+.conf-badge.high{background:var(--high-bg);color:var(--high);border:1px solid var(--high-border)}
+.conf-badge.moderate{background:var(--moderate-bg);color:var(--moderate);border:1px solid var(--moderate-border)}
+.conf-badge.low{background:var(--low-bg);color:var(--low);border:1px solid var(--low-border)}
+.conf-badge.verylow{background:var(--verylow-bg);color:var(--verylow);border:1px solid var(--verylow-border)}
+.effect-cell{font-weight:600;font-size:.82rem}
+.effect-ci{font-size:.74rem;color:var(--text2);font-weight:400}
+
+/* ===== EXPORT ===== */
+.export-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-top:1rem}
+.export-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+.export-card-title{font-weight:700;font-size:.9rem;margin-bottom:.3rem}
+.export-card-desc{font-size:.78rem;color:var(--text2);margin-bottom:.85rem;line-height:1.4}
+.narrative-box{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.75rem;font-size:.78rem;line-height:1.5;color:var(--text);margin-top:.75rem;white-space:pre-wrap;max-height:200px;overflow-y:auto}
+
+/* ===== EMPTY STATES ===== */
+.empty-state{text-align:center;padding:2.5rem 1rem;color:var(--text3)}
+.empty-state .empty-icon{font-size:2.5rem;margin-bottom:.6rem}
+.empty-state p{font-size:.875rem;margin-bottom:1rem}
+
+/* ===== ALERTS ===== */
+.alert{padding:.65rem 1rem;border-radius:6px;font-size:.82rem;border-left:4px solid;margin-bottom:.75rem;line-height:1.4}
+.alert-info{background:var(--primary-light);border-color:var(--primary);color:var(--primary)}
+.alert-warning{background:var(--some-bg);border-color:var(--some-concern);color:var(--some-concern)}
+.alert-success{background:var(--no-bg);border-color:var(--no-concern);color:var(--no-concern)}
+
+/* ===== MODAL ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity var(--transition)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--surface);border-radius:var(--radius-lg);padding:1.5rem;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:translateY(20px);transition:transform var(--transition)}
+.modal-overlay.open .modal-box{transform:translateY(0)}
+.modal-title{font-weight:700;font-size:1rem;margin-bottom:1rem}
+.modal-actions{display:flex;gap:.5rem;justify-content:flex-end;margin-top:1.25rem}
+
+/* ===== TOOLTIP ===== */
+.tooltip-wrap{position:relative;display:inline-flex}
+.tooltip-wrap .tooltip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1e293b;color:#f1f5f9;font-size:.73rem;padding:.3rem .55rem;border-radius:4px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:200;line-height:1.3;max-width:220px;white-space:normal;text-align:center}
+.tooltip-wrap:hover .tooltip{opacity:1}
+
+/* ===== PRINT ===== */
+@media print{
+  header,#export-tab,.header-actions,.btn-row,#graphSection,#network-controls{display:none!important}
+  .tab-panel{display:block!important}
+  body{background:#fff;color:#000;font-size:11pt}
+  .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+  .cinema-table-wrap{overflow:visible}
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ===== UTILITIES ===== */
+.flex{display:flex}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.gap-1{gap:.5rem}.gap-2{gap:.75rem}.gap-3{gap:1rem}
+.mt-1{margin-top:.5rem}.mt-2{margin-top:.75rem}.mt-3{margin-top:1rem}.mb-1{margin-bottom:.5rem}.mb-2{margin-bottom:.75rem}
+.text-sm{font-size:.8rem}.text-xs{font-size:.73rem}.text-muted{color:var(--text2)}.text-danger{color:var(--verylow)}.font-bold{font-weight:700}
+.w-full{width:100%}
+.divider{border:none;border-top:1px solid var(--border);margin:1rem 0}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+@media(max-width:600px){.grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="brand">
+    <div class="brand-icon">N</div>
+    <div>
+      CINeMA
+      <span class="brand-sub">Confidence in Network Meta-Analysis</span>
+    </div>
+  </div>
+  <nav>
+    <button class="tab-btn active" onclick="switchTab('network')" id="tab-network">Network Data</button>
+    <button class="tab-btn" onclick="switchTab('assess')" id="tab-assess">Assessment</button>
+    <button class="tab-btn" onclick="switchTab('table')" id="tab-table">CINeMA Table</button>
+    <button class="tab-btn" onclick="switchTab('export')" id="tab-export">Export</button>
+  </nav>
+  <div class="header-actions">
+    <div class="tooltip-wrap">
+      <button class="icon-btn" onclick="loadExample()" title="Load example">Examples</button>
+      <div class="tooltip">Load a built-in example dataset</div>
+    </div>
+    <div class="tooltip-wrap">
+      <button class="icon-btn" onclick="clearAll()" title="Clear all data">Clear</button>
+      <div class="tooltip">Clear all data and start fresh</div>
+    </div>
+    <button class="icon-btn" onclick="toggleDark()" id="darkBtn" title="Toggle dark mode" aria-label="Toggle dark mode">Dark</button>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main>
+
+<!-- ====== TAB 1: NETWORK DATA ====== -->
+<div class="tab-panel active" id="network-tab">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem" class="top-grid">
+
+    <!-- Treatments -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Treatments (Nodes)</span>
+        <button class="btn btn-primary btn-sm" onclick="openAddTreatment()">+ Add</button>
+      </div>
+      <div id="treatmentList">
+        <div class="empty-state" style="padding:1rem">
+          <p class="text-sm text-muted">No treatments yet. Add treatments or load an example.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparisons -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Comparisons (Edges)</span>
+        <button class="btn btn-primary btn-sm" onclick="openAddComparison()">+ Add</button>
+      </div>
+      <div id="comparisonList">
+        <div class="empty-state" style="padding:1rem">
+          <p class="text-sm text-muted">No comparisons yet. Add at least 2 treatments first.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Network Graph -->
+  <div class="card mt-3" id="graphSection">
+    <div class="card-header">
+      <span class="card-title">Network Geometry</span>
+      <div class="flex gap-1">
+        <button class="btn btn-outline btn-sm" onclick="resetLayout()">Reset Layout</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleLabels()">Toggle Labels</button>
+      </div>
+    </div>
+    <canvas id="networkCanvas" width="900" height="420"></canvas>
+    <div class="graph-legend">
+      <span class="legend-item"><span class="legend-dot" style="background:var(--primary)"></span>Treatment node</span>
+      <span class="legend-item"><span style="width:24px;height:3px;background:var(--primary);display:inline-block;border-radius:2px"></span>Edge width = k studies</span>
+      <span class="legend-item" style="color:var(--text3);font-size:.72rem">Drag nodes to rearrange</span>
+    </div>
+    <div id="network-controls" class="mt-2 flex gap-1 flex-wrap">
+      <div class="form-group" style="min-width:100px;flex:0 0 auto">
+        <label>Effect measure</label>
+        <select id="effectMeasure" onchange="saveState()">
+          <option value="MD">MD</option>
+          <option value="SMD">SMD</option>
+          <option value="OR">OR</option>
+          <option value="RR">RR</option>
+          <option value="HR">HR</option>
+          <option value="RD">RD</option>
+        </select>
+      </div>
+      <div class="form-group" style="min-width:180px;flex:0 0 auto">
+        <label>Clinical threshold (for imprecision)</label>
+        <input type="number" id="clinThreshold" placeholder="e.g. 0.5 for SMD" step="0.01" oninput="saveState()">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== TAB 2: ASSESSMENT ====== -->
+<div class="tab-panel" id="assess-tab">
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-header" style="margin-bottom:0">
+      <div class="flex items-center gap-2">
+        <span class="card-title">Select Comparison to Assess</span>
+        <select id="assessCompSelect" style="min-width:260px;font-size:.85rem;padding:.35rem .6rem" onchange="loadAssessment()">
+          <option value="">— choose a comparison —</option>
+        </select>
+      </div>
+      <div class="flex gap-1">
+        <button class="btn btn-outline btn-sm" onclick="prevComparison()">Prev</button>
+        <button class="btn btn-outline btn-sm" onclick="nextComparison()">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="assessmentContent">
+    <div class="empty-state">
+      <div class="empty-icon">&#9737;</div>
+      <p>Select a comparison above to begin the CINeMA domain assessment.</p>
+      <p class="text-sm text-muted">Make sure you have added comparisons in the Network Data tab first.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== TAB 3: TABLE ====== -->
+<div class="tab-panel" id="table-tab">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">CINeMA Summary Table</span>
+      <div class="flex gap-1">
+        <button class="btn btn-outline btn-sm" onclick="switchTab('export')">Export</button>
+        <button class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
+      </div>
+    </div>
+    <div class="alert alert-info mb-2" style="font-size:.76rem">
+      <strong>Domain symbols:</strong>
+      <span style="color:var(--no-concern);font-weight:700"> &#9679; No concern</span> &nbsp;
+      <span style="color:var(--some-concern);font-weight:700"> &#9650; Some concern</span> &nbsp;
+      <span style="color:var(--major-concern);font-weight:700"> &#9632; Major concern</span>
+    </div>
+    <div id="cinemaTableContainer">
+      <div class="empty-state">
+        <div class="empty-icon">&#9783;</div>
+        <p>No comparisons assessed yet.</p>
+        <p class="text-sm text-muted">Complete assessments in the Assessment tab to populate this table.</p>
+      </div>
+    </div>
+  </div>
+  <div class="card mt-3">
+    <div class="card-header"><span class="card-title">Domain Legend</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.5rem;font-size:.78rem">
+      <div><strong>WSB</strong> — Within-study bias</div>
+      <div><strong>RB</strong> — Reporting bias</div>
+      <div><strong>IND</strong> — Indirectness</div>
+      <div><strong>IMP</strong> — Imprecision</div>
+      <div><strong>HET</strong> — Heterogeneity</div>
+      <div><strong>INC</strong> — Incoherence</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== TAB 4: EXPORT ====== -->
+<div class="tab-panel" id="export-tab">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Export Options</span></div>
+    <div class="export-grid">
+      <div class="export-card">
+        <div class="export-card-title">Copy Table as HTML</div>
+        <div class="export-card-desc">Copy the CINeMA table as formatted HTML, ready to paste into Word or email.</div>
+        <button class="btn btn-primary" onclick="copyTableHTML()">Copy HTML</button>
+      </div>
+      <div class="export-card">
+        <div class="export-card-title">Download CSV</div>
+        <div class="export-card-desc">Download all comparisons and domain ratings as a CSV spreadsheet.</div>
+        <button class="btn btn-primary" onclick="downloadCSV()">Download CSV</button>
+      </div>
+      <div class="export-card">
+        <div class="export-card-title">Download Full Report</div>
+        <div class="export-card-desc">Download a complete formatted HTML report with all assessments and footnotes.</div>
+        <button class="btn btn-primary" onclick="downloadReport()">Download Report</button>
+      </div>
+      <div class="export-card">
+        <div class="export-card-title">Assessment Narrative</div>
+        <div class="export-card-desc">Generate a written paragraph for each assessed comparison.</div>
+        <select id="narrativeCompSelect" style="width:100%;margin-bottom:.6rem" onchange="generateNarrative()">
+          <option value="">— choose comparison —</option>
+        </select>
+        <div id="narrativeOutput" class="narrative-box" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card mt-3">
+    <div class="card-header"><span class="card-title">Print-Friendly View</span></div>
+    <p class="text-sm text-muted mb-2">Opens a print dialog with only the CINeMA table, suitable for publication.</p>
+    <button class="btn btn-outline" onclick="printTable()">Print Table Only</button>
+  </div>
+</div>
+
+</main>
+
+<!-- ====== MODALS ====== -->
+
+<!-- Add Treatment Modal -->
+<div class="modal-overlay" id="treatmentModal">
+  <div class="modal-box">
+    <div class="modal-title">Add Treatment</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Treatment Name</label>
+        <input type="text" id="txName" placeholder="e.g. Escitalopram" oninput="autoShortLabel()">
+      </div>
+      <div class="form-group" style="max-width:100px">
+        <label>Short Label</label>
+        <input type="text" id="txShort" placeholder="ESC" maxlength="6">
+        <span class="hint">Max 6 chars</span>
+      </div>
+    </div>
+    <div class="form-group mb-1">
+      <label>Color (optional)</label>
+      <input type="color" id="txColor" value="#2563eb" style="height:32px;width:60px;padding:0;border:1px solid var(--border);border-radius:4px;cursor:pointer">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('treatmentModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addTreatment()">Add Treatment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Comparison Modal -->
+<div class="modal-overlay" id="comparisonModal">
+  <div class="modal-box">
+    <div class="modal-title">Add Comparison</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Treatment A</label>
+        <select id="compTxA"></select>
+      </div>
+      <div class="form-group">
+        <label>Treatment B</label>
+        <select id="compTxB"></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Effect Estimate</label>
+        <input type="number" id="compEffect" placeholder="e.g. -0.31" step="any">
+      </div>
+      <div class="form-group">
+        <label>95% CI Lower</label>
+        <input type="number" id="compCILo" placeholder="e.g. -0.49" step="any">
+      </div>
+      <div class="form-group">
+        <label>95% CI Upper</label>
+        <input type="number" id="compCIHi" placeholder="e.g. -0.14" step="any">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>k direct studies</label>
+        <input type="number" id="compK" placeholder="3" min="0" step="1">
+      </div>
+      <div class="form-group">
+        <label>% direct contribution</label>
+        <input type="number" id="compDirect" placeholder="65" min="0" max="100" step="1">
+        <span class="hint">0% = entirely indirect</span>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>tau (between-study SD, if available)</label>
+        <input type="number" id="compTau" placeholder="0.12" min="0" step="any">
+      </div>
+      <div class="form-group">
+        <label>Direct estimate (if differs)</label>
+        <input type="number" id="compDirect95" placeholder="e.g. -0.28" step="any">
+        <span class="hint">For incoherence check</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('comparisonModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addComparison()">Add Comparison</button>
+    </div>
+  </div>
+</div>
+
+<!-- Example Picker Modal -->
+<div class="modal-overlay" id="exampleModal">
+  <div class="modal-box">
+    <div class="modal-title">Load Example Dataset</div>
+    <p class="text-sm text-muted mb-2">Loading will replace your current data.</p>
+    <div style="display:flex;flex-direction:column;gap:.5rem">
+      <button class="btn btn-outline" onclick="loadExampleData(1)">
+        <strong>Antidepressants network</strong> — 7 treatments, mixed confidence (based on Cipriani 2018)
+      </button>
+      <button class="btn btn-outline" onclick="loadExampleData(2)">
+        <strong>Blood pressure drug classes</strong> — 5 classes, mostly High confidence
+      </button>
+      <button class="btn btn-outline" onclick="loadExampleData(3)">
+        <strong>Pain relief strategies</strong> — NSAIDs, opioids, combinations, Low confidence
+      </button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('exampleModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Clear Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-title">Clear All Data?</div>
+    <p class="text-sm">This will remove all treatments, comparisons, and assessments. This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmClear()">Clear Everything</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== SEEDED PRNG (xoshiro128**) =====
+function mkPRNG(seed){
+  let s=[seed^0xDEADBEEF,(seed>>16)^0xCAFEBABE,seed^0x12345678,(seed>>8)^0x87654321];
+  function rotl(x,k){return(x<<k)|(x>>>(32-k))}
+  return function(){
+    const r=Math.imul(rotl(Math.imul(s[1],5),7),9);
+    const t=s[1]<<9;
+    s[2]^=s[0];s[3]^=s[1];s[1]^=s[2];s[0]^=s[3];
+    s[2]^=t;s[3]=rotl(s[3],11);
+    return(r>>>0)/4294967296;
+  };
+}
+
+// ===== ID COUNTER (deterministic alternative to Math.random for IDs) =====
+let _idCounter = 0;
+function nextId(prefix) { return prefix + '_' + Date.now() + '_' + (++_idCounter); }
+
+// ===== STATE =====
+let state = {
+  treatments:[],
+  comparisons:[],
+  assessments:{}, // keyed by compId
+  effectMeasure:'MD',
+  clinThreshold:null,
+  showLabels:true
+};
+
+const DOMAINS = [
+  {id:'wsb',  label:'Within-study bias',   short:'WSB', desc:'Risk of bias in contributing studies, weighted by their contribution to the comparison.'},
+  {id:'rb',   label:'Reporting bias',       short:'RB',  desc:'Small-study effects and selective reporting bias in the network.'},
+  {id:'ind',  label:'Indirectness',         short:'IND', desc:'How directly studies address the comparison of interest (population, intervention, outcome, timing).'},
+  {id:'imp',  label:'Imprecision',          short:'IMP', desc:'Width of the confidence interval relative to the clinical decision threshold.'},
+  {id:'het',  label:'Heterogeneity',        short:'HET', desc:'Between-study variance (tau²) within pairwise comparisons contributing to the network.'},
+  {id:'inc',  label:'Incoherence',          short:'INC', desc:'Inconsistency between direct and indirect evidence (loop inconsistency or design-by-treatment).'}
+];
+
+const CONCERN_LEVELS = ['no','some','major'];
+const CONFIDENCE_LEVELS = ['High','Moderate','Low','Very Low'];
+
+// ===== localStorage =====
+function saveState(){
+  try{
+    state.effectMeasure = document.getElementById('effectMeasure').value;
+    const tv = parseFloat(document.getElementById('clinThreshold').value);
+    state.clinThreshold = isFinite(tv) ? tv : null;
+    localStorage.setItem('cinema_app_v1', JSON.stringify(state));
+  }catch(e){}
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem('cinema_app_v1');
+    if(raw){
+      const parsed = JSON.parse(raw);
+      Object.assign(state, parsed);
+    }
+  }catch(e){}
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', function(){
+  loadState();
+  document.getElementById('effectMeasure').value = state.effectMeasure || 'MD';
+  if(state.clinThreshold !== null) document.getElementById('clinThreshold').value = state.clinThreshold;
+  if(state.dark) document.body.classList.add('dark');
+  renderAll();
+});
+
+// ===== TABS =====
+function switchTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id+'-tab').classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  if(id==='table') renderCINeMATable();
+  if(id==='assess') renderAssessDropdown();
+  if(id==='export') renderExportDropdown();
+}
+
+// ===== DARK MODE =====
+function toggleDark(){
+  document.body.classList.toggle('dark');
+  state.dark = document.body.classList.contains('dark');
+  document.getElementById('darkBtn').textContent = state.dark ? 'Light' : 'Dark';
+  saveState();
+  drawNetwork();
+}
+
+// ===== MODALS =====
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  const firstInput = document.querySelector('#'+id+' input, #'+id+' select');
+  if(firstInput) setTimeout(()=>firstInput.focus(),50);
+  document.addEventListener('keydown', handleModalKey);
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+  document.removeEventListener('keydown', handleModalKey);
+}
+function handleModalKey(e){
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));
+    document.removeEventListener('keydown', handleModalKey);
+  }
+}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click', function(e){
+    if(e.target===this){
+      this.classList.remove('open');
+      document.removeEventListener('keydown', handleModalKey);
+    }
+  });
+});
+
+// ===== TREATMENT MANAGEMENT =====
+function openAddTreatment(){
+  document.getElementById('txName').value='';
+  document.getElementById('txShort').value='';
+  document.getElementById('txColor').value='#2563eb';
+  openModal('treatmentModal');
+}
+
+function autoShortLabel(){
+  const name = document.getElementById('txName').value.trim();
+  const short = document.getElementById('txShort');
+  if(!short.value || short.dataset.auto==='1'){
+    const words = name.split(/\s+/);
+    let lbl = words.length>1 ? words.map(w=>w[0]).join('').toUpperCase().slice(0,5) : name.slice(0,5).toUpperCase();
+    short.value = lbl;
+    short.dataset.auto = '1';
+  }
+}
+
+document.getElementById('txShort').addEventListener('input', function(){
+  this.dataset.auto = '';
+});
+
+function addTreatment(){
+  const name = document.getElementById('txName').value.trim();
+  const short = document.getElementById('txShort').value.trim() || name.slice(0,5).toUpperCase();
+  const color = document.getElementById('txColor').value;
+  if(!name){alert('Please enter a treatment name.');return;}
+  if(state.treatments.some(t=>t.name.toLowerCase()===name.toLowerCase())){
+    alert('A treatment with this name already exists.');return;
+  }
+  const id = nextId('tx');
+  state.treatments.push({id, name, short, color});
+  closeModal('treatmentModal');
+  renderAll();
+  saveState();
+}
+
+function removeTreatment(id){
+  const tx = state.treatments.find(t=>t.id===id);
+  if(!tx) return;
+  if(!confirm('Remove "'+tx.name+'" and all its comparisons?')) return;
+  state.treatments = state.treatments.filter(t=>t.id!==id);
+  state.comparisons = state.comparisons.filter(c=>c.txA!==id && c.txB!==id);
+  Object.keys(state.assessments).forEach(cid=>{
+    if(!state.comparisons.find(c=>c.id===cid)) delete state.assessments[cid];
+  });
+  renderAll();
+  saveState();
+}
+
+// ===== COMPARISON MANAGEMENT =====
+function openAddComparison(){
+  if(state.treatments.length<2){alert('Add at least 2 treatments first.');return;}
+  const selA = document.getElementById('compTxA');
+  const selB = document.getElementById('compTxB');
+  [selA, selB].forEach(sel=>{
+    sel.innerHTML='';
+    state.treatments.forEach(t=>{
+      const opt=document.createElement('option');
+      opt.value=t.id; opt.textContent=t.name;
+      sel.appendChild(opt);
+    });
+  });
+  if(state.treatments.length>1) selB.selectedIndex=1;
+  ['compEffect','compCILo','compCIHi','compK','compDirect','compTau','compDirect95'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  openModal('comparisonModal');
+}
+
+function addComparison(){
+  const txA = document.getElementById('compTxA').value;
+  const txB = document.getElementById('compTxB').value;
+  if(txA===txB){alert('Select two different treatments.');return;}
+  const existing = state.comparisons.find(c=>(c.txA===txA&&c.txB===txB)||(c.txA===txB&&c.txB===txA));
+  if(existing){alert('This comparison already exists.');return;}
+  const effect = parseFloat(document.getElementById('compEffect').value);
+  const ciLo   = parseFloat(document.getElementById('compCILo').value);
+  const ciHi   = parseFloat(document.getElementById('compCIHi').value);
+  const k      = parseInt(document.getElementById('compK').value)||0;
+  const direct = parseFloat(document.getElementById('compDirect').value);
+  const tau    = parseFloat(document.getElementById('compTau').value);
+  const directEst = parseFloat(document.getElementById('compDirect95').value);
+  const id = nextId('comp');
+  state.comparisons.push({
+    id, txA, txB,
+    effect: isFinite(effect) ? effect : null,
+    ciLo: isFinite(ciLo) ? ciLo : null,
+    ciHi: isFinite(ciHi) ? ciHi : null,
+    k,
+    directPct: isFinite(direct) ? direct : null,
+    tau: isFinite(tau) ? tau : null,
+    directEst: isFinite(directEst) ? directEst : null
+  });
+  closeModal('comparisonModal');
+  renderAll();
+  saveState();
+}
+
+function removeComparison(id){
+  if(!confirm('Remove this comparison and its assessment?')) return;
+  state.comparisons = state.comparisons.filter(c=>c.id!==id);
+  delete state.assessments[id];
+  renderAll();
+  saveState();
+}
+
+// ===== RENDER TREATMENTS =====
+function renderTreatments(){
+  const el = document.getElementById('treatmentList');
+  if(!state.treatments.length){
+    el.innerHTML='<div class="empty-state" style="padding:1rem"><p class="text-sm text-muted">No treatments yet. Click + Add or load an example.</p></div>';
+    return;
+  }
+  const pills = state.treatments.map(t=>`
+    <span class="pill" style="background:${t.color}22;color:${t.color};border:1px solid ${t.color}55">
+      <strong>${escHtml(t.short)}</strong> — ${escHtml(t.name)}
+      <button class="pill-remove" onclick="removeTreatment('${t.id}')" aria-label="Remove ${escHtml(t.name)}">&#x2715;</button>
+    </span>`).join('');
+  el.innerHTML='<div class="pill-list">'+pills+'</div>';
+}
+
+// ===== RENDER COMPARISONS =====
+function renderComparisons(){
+  const el = document.getElementById('comparisonList');
+  if(!state.comparisons.length){
+    el.innerHTML='<div class="empty-state" style="padding:1rem"><p class="text-sm text-muted">No comparisons yet.</p></div>';
+    return;
+  }
+  const items = state.comparisons.map(c=>{
+    const txA = state.treatments.find(t=>t.id===c.txA);
+    const txB = state.treatments.find(t=>t.id===c.txB);
+    const nameA = txA ? txA.short : '?';
+    const nameB = txB ? txB.short : '?';
+    const eff = c.effect !== null ? formatEffect(c.effect, c.ciLo, c.ciHi) : 'NR';
+    const assessed = state.assessments[c.id];
+    const conf = assessed ? getConfidence(assessed) : null;
+    const badge = conf ? `<span class="conf-badge ${conf.toLowerCase().replace(' ','')}">${conf}</span>` : '<span class="text-muted text-xs">Not assessed</span>';
+    return `<div class="comp-item">
+      <span class="comp-label">${escHtml(nameA)} vs ${escHtml(nameB)}</span>
+      <div class="comp-stats">
+        <span>${eff}</span>
+        ${c.k ? '<span>k='+c.k+'</span>' : ''}
+        ${badge}
+      </div>
+      <div class="flex gap-1" style="margin-left:auto">
+        <button class="btn btn-outline btn-sm" onclick="goAssess('${c.id}')">Assess</button>
+        <button class="btn btn-danger btn-sm" onclick="removeComparison('${c.id}')">&#x2715;</button>
+      </div>
+    </div>`;
+  }).join('');
+  el.innerHTML='<div class="comp-list">'+items+'</div>';
+}
+
+function goAssess(compId){
+  switchTab('assess');
+  const sel = document.getElementById('assessCompSelect');
+  sel.value = compId;
+  loadAssessment();
+}
+
+// ===== HELPERS =====
+function escHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function formatEffect(eff, lo, hi){
+  return eff.toFixed(2) + (lo!==null&&hi!==null ? ' ('+lo.toFixed(2)+', '+hi.toFixed(2)+')':'');
+}
+
+function getTxName(id){
+  const t = state.treatments.find(x=>x.id===id);
+  return t ? t.name : '?';
+}
+function getTxShort(id){
+  const t = state.treatments.find(x=>x.id===id);
+  return t ? t.short : '?';
+}
+function getTxColor(id){
+  const t = state.treatments.find(x=>x.id===id);
+  return t ? t.color : '#2563eb';
+}
+
+// ===== CONFIDENCE CALCULATION =====
+function getConfidence(assessment){
+  if(!assessment) return null;
+  let downgrades = 0;
+  DOMAINS.forEach(d=>{
+    const v = assessment[d.id];
+    if(v==='some') downgrades += 1;
+    else if(v==='major') downgrades += 2;
+  });
+  if(downgrades===0) return 'High';
+  if(downgrades===1) return 'Moderate';
+  if(downgrades<=3) return 'Low';
+  return 'Very Low';
+}
+
+// ===== AUTO-SUGGESTIONS =====
+function getAutoSuggestions(comp){
+  const sugg = {};
+  const em = state.effectMeasure;
+  const thresh = state.clinThreshold;
+  // Imprecision
+  if(comp.ciLo!==null&&comp.ciHi!==null&&thresh!==null&&isFinite(thresh)){
+    const ciWidth = comp.ciHi - comp.ciLo;
+    const isRatio = em==='OR'||em==='RR'||em==='HR';
+    if(isRatio){
+      const logLo = Math.log(comp.ciLo>0?comp.ciLo:0.001);
+      const logHi = Math.log(comp.ciHi>0?comp.ciHi:0.001);
+      const logThresh = Math.log(thresh>0?thresh:0.001);
+      if(logHi-logLo > 2*Math.abs(logThresh)){
+        sugg.imp = {level:'warn', text:'CI width ('+Math.abs(logHi-logLo).toFixed(2)+' log scale) exceeds 2× threshold — consider Some concern for imprecision.'};
+      } else {
+        sugg.imp = {level:'ok', text:'CI width within threshold range.'};
+      }
+    } else {
+      if(ciWidth > 3*Math.abs(thresh)){
+        sugg.imp = {level:'flag', text:'CI width greatly exceeds threshold — consider Major concern.'};
+      } else if(ciWidth > 2*Math.abs(thresh)){
+        sugg.imp = {level:'warn', text:'CI width ('+ciWidth.toFixed(2)+') exceeds 2× clinical threshold ('+thresh+') — consider Some concern.'};
+      } else {
+        sugg.imp = {level:'ok', text:'CI width within clinical threshold range.'};
+      }
+    }
+  }
+  // Heterogeneity
+  if(comp.tau!==null&&isFinite(comp.tau)&&comp.ciLo!==null&&comp.ciHi!==null){
+    const se = (comp.ciHi-comp.ciLo)/3.92;
+    const tau = comp.tau;
+    const piLo = comp.effect - 1.96*Math.sqrt(se*se+tau*tau);
+    const piHi = comp.effect + 1.96*Math.sqrt(se*se+tau*tau);
+    const ciRange = comp.ciHi-comp.ciLo;
+    const piRange = piHi-piLo;
+    if(piRange > ciRange*3){
+      sugg.het = {level:'flag', text:'Prediction interval much wider than CI — consider Major concern for heterogeneity.'};
+    } else if(piRange > ciRange*2){
+      sugg.het = {level:'warn', text:'Prediction interval ('+piLo.toFixed(2)+' to '+piHi.toFixed(2)+') is >2× the CI width — consider Some concern for heterogeneity.'};
+    } else {
+      sugg.het = {level:'ok', text:'Prediction interval similar to CI width (tau='+tau.toFixed(3)+').'};
+    }
+  }
+  // Incoherence
+  if(comp.directEst!==null&&isFinite(comp.directEst)&&comp.effect!==null&&comp.ciLo!==null&&comp.ciHi!==null){
+    const se = (comp.ciHi-comp.ciLo)/3.92;
+    const diff = Math.abs(comp.directEst - comp.effect);
+    if(diff > 2*se){
+      sugg.inc = {level:'flag', text:'Direct estimate ('+comp.directEst.toFixed(2)+') differs from network by '+diff.toFixed(2)+' (>2 SE) — consider Major concern for incoherence.'};
+    } else if(diff > se){
+      sugg.inc = {level:'warn', text:'Direct estimate ('+comp.directEst.toFixed(2)+') differs from network by '+diff.toFixed(2)+' (>1 SE) — consider Some concern.'};
+    } else {
+      sugg.inc = {level:'ok', text:'Direct and indirect estimates are consistent.'};
+    }
+  }
+  return sugg;
+}
+
+// ===== RENDER ASSESSMENT TAB =====
+function renderAssessDropdown(){
+  const sel = document.getElementById('assessCompSelect');
+  const current = sel.value;
+  sel.innerHTML='<option value="">— choose a comparison —</option>';
+  state.comparisons.forEach(c=>{
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    const nameA = getTxShort(c.txA);
+    const nameB = getTxShort(c.txB);
+    const assessed = state.assessments[c.id];
+    const conf = assessed ? (' ['+getConfidence(assessed)+']') : ' [—]';
+    opt.textContent = nameA+' vs '+nameB+conf;
+    sel.appendChild(opt);
+  });
+  sel.value = current;
+}
+
+function loadAssessment(){
+  const sel = document.getElementById('assessCompSelect');
+  const compId = sel.value;
+  const el = document.getElementById('assessmentContent');
+  if(!compId){
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">&#9737;</div><p>Select a comparison above to begin the CINeMA domain assessment.</p></div>';
+    return;
+  }
+  const comp = state.comparisons.find(c=>c.id===compId);
+  if(!comp){el.innerHTML='<p>Comparison not found.</p>';return;}
+  const assessment = state.assessments[compId] || {};
+  const sugg = getAutoSuggestions(comp);
+  const nameA = getTxName(comp.txA);
+  const nameB = getTxName(comp.txB);
+  const conf = getConfidence(assessment);
+  const confClass = conf ? conf.toLowerCase().replace(' ','') : 'high';
+
+  let effectInfo = '';
+  if(comp.effect!==null){
+    effectInfo=`<span class="effect-cell">${state.effectMeasure} ${formatEffect(comp.effect,comp.ciLo,comp.ciHi)}</span>`;
+  }
+  let compInfoHtml = `
+    <div class="flex flex-wrap gap-2 mb-2" style="font-size:.82rem">
+      ${effectInfo}
+      ${comp.k ? '<span class="text-muted">k='+comp.k+' direct studies</span>' : ''}
+      ${comp.directPct!==null ? '<span class="text-muted">'+comp.directPct+'% direct contribution</span>' : ''}
+    </div>`;
+
+  // Confidence display
+  const confHtml = buildConfidenceDisplay(conf, assessment);
+
+  // Domain cards
+  const domainCards = DOMAINS.map(d=>{
+    const val = assessment[d.id] || 'no';
+    const cardClass = val==='no' ? 'no-concern' : val==='some' ? 'some-concern' : 'major-concern';
+    const s = sugg[d.id];
+    const suggHtml = s ? `<div class="suggestion-box ${s.level==='ok'?'ok':s.level==='warn'?'warn':'flag'}">${escHtml(s.text)}</div>` : '';
+    const footnote = assessment['fn_'+d.id] || '';
+    const radioHtml = CONCERN_LEVELS.map(lv=>`
+      <label class="radio-option">
+        <input type="radio" name="domain_${d.id}_${compId}" value="${lv}" ${val===lv?'checked':''} onchange="updateDomain('${compId}','${d.id}',this.value)" aria-label="${lv==='no'?'No concern':lv==='some'?'Some concern':'Major concern'}">
+        <span>${lv==='no'?'No concern':lv==='some'?'Some concern':'Major concern'}</span>
+      </label>`).join('');
+    return `
+    <div class="domain-card ${cardClass}" id="dc_${d.id}_${compId}">
+      <div class="domain-title">
+        <span class="conf-badge ${cardClass.replace('-concern','').replace('no','').trim()}" style="font-size:.7rem;padding:.1rem .4rem">${escHtml(d.short)}</span>
+        ${escHtml(d.label)}
+      </div>
+      <div class="domain-desc">${escHtml(d.desc)}</div>
+      <div class="radio-group">${radioHtml}</div>
+      ${suggHtml}
+      <div class="domain-footnote">
+        <label style="font-size:.73rem;color:var(--text3)">Footnote (optional)</label>
+        <textarea rows="1" placeholder="Add reasoning or evidence..." onchange="updateFootnote('${compId}','${d.id}',this.value)">${escHtml(footnote)}</textarea>
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML=`
+    <div class="card mb-2">
+      <div class="card-header">
+        <span class="card-title">${escHtml(nameA)} vs ${escHtml(nameB)}</span>
+        <button class="btn btn-outline btn-sm" onclick="clearAssessment('${compId}')">Reset domains</button>
+      </div>
+      ${compInfoHtml}
+      ${confHtml}
+    </div>
+    <div class="domain-grid">${domainCards}</div>`;
+}
+
+function buildConfidenceDisplay(conf, assessment){
+  if(!conf) conf='High';
+  const cls = conf==='High'?'high':conf==='Moderate'?'moderate':conf==='Low'?'low':'verylow';
+  const segs = ['High','Moderate','Low','Very Low'];
+  const idx = segs.indexOf(conf);
+  const barSegs = segs.map((s,i)=>{
+    const filledCls = i<=idx ? 'filled-'+s.toLowerCase().replace(' ','') : '';
+    return `<div class="conf-bar-seg ${filledCls}"></div>`;
+  }).join('');
+  let downgradeInfo='';
+  let downs=[];
+  DOMAINS.forEach(d=>{
+    const v=assessment[d.id];
+    if(v==='some') downs.push(d.short+': Some concern');
+    else if(v==='major') downs.push(d.short+': Major concern');
+  });
+  if(downs.length) downgradeInfo='<div class="downgrade-info">Downgraded for: '+escHtml(downs.join('; '))+'</div>';
+  return `<div class="confidence-display">
+    <div>
+      <div class="confidence-label">Overall Confidence</div>
+      <div class="confidence-value conf-${cls}">${escHtml(conf)}</div>
+      <div class="conf-bar">${barSegs}</div>
+    </div>
+    <div style="flex:1">${downgradeInfo}</div>
+  </div>`;
+}
+
+function updateDomain(compId, domainId, value){
+  if(!state.assessments[compId]) state.assessments[compId]={};
+  state.assessments[compId][domainId]=value;
+  // Update card class
+  const card = document.getElementById('dc_'+domainId+'_'+compId);
+  if(card){
+    card.classList.remove('no-concern','some-concern','major-concern');
+    card.classList.add(value==='no'?'no-concern':value==='some'?'some-concern':'major-concern');
+  }
+  // Update confidence display
+  const assessment = state.assessments[compId];
+  const conf = getConfidence(assessment);
+  const dispEl = document.querySelector('.confidence-display');
+  if(dispEl) dispEl.outerHTML = buildConfidenceDisplay(conf, assessment);
+  renderAssessDropdown();
+  renderComparisons();
+  saveState();
+}
+
+function updateFootnote(compId, domainId, value){
+  if(!state.assessments[compId]) state.assessments[compId]={};
+  state.assessments[compId]['fn_'+domainId]=value;
+  saveState();
+}
+
+function clearAssessment(compId){
+  if(!confirm('Reset all domain judgments for this comparison?')) return;
+  delete state.assessments[compId];
+  saveState();
+  loadAssessment();
+  renderComparisons();
+}
+
+function prevComparison(){
+  const sel = document.getElementById('assessCompSelect');
+  const idx = Array.from(sel.options).findIndex(o=>o.value===sel.value);
+  if(idx>1){ sel.selectedIndex=idx-1; loadAssessment(); }
+  else if(idx<=0&&sel.options.length>1){ sel.selectedIndex=sel.options.length-1; loadAssessment(); }
+}
+
+function nextComparison(){
+  const sel = document.getElementById('assessCompSelect');
+  const idx = Array.from(sel.options).findIndex(o=>o.value===sel.value);
+  if(idx>=1&&idx<sel.options.length-1){ sel.selectedIndex=idx+1; loadAssessment(); }
+  else if(idx===0&&sel.options.length>1){ sel.selectedIndex=1; loadAssessment(); }
+  else if(idx===sel.options.length-1&&sel.options.length>1){ sel.selectedIndex=1; loadAssessment(); }
+}
+
+// ===== CINeMA TABLE =====
+function renderCINeMATable(){
+  const el = document.getElementById('cinemaTableContainer');
+  if(!state.comparisons.length){
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">&#9783;</div><p>No comparisons yet.</p></div>';
+    return;
+  }
+  const domainSymbol = (v)=>{
+    if(!v||v==='no')  return '<span class="domain-cell nc" title="No concern">&#9679;</span>';
+    if(v==='some')    return '<span class="domain-cell sc" title="Some concern">&#9650;</span>';
+    if(v==='major')   return '<span class="domain-cell mc" title="Major concern">&#9632;</span>';
+    return '<span class="domain-cell na">—</span>';
+  };
+  const rows = state.comparisons.map(c=>{
+    const assessment = state.assessments[c.id] || {};
+    const conf = getConfidence(assessment);
+    const confCls = conf?conf.toLowerCase().replace(' ',''):'high';
+    const nameA = getTxShort(c.txA);
+    const nameB = getTxShort(c.txB);
+    const eff = c.effect!==null ? `<div class="effect-cell">${c.effect.toFixed(2)}</div><div class="effect-ci">(${c.ciLo!==null?c.ciLo.toFixed(2):'?'}, ${c.ciHi!==null?c.ciHi.toFixed(2):'?'})</div>` : '<span class="text-muted">—</span>';
+    return `<tr>
+      <td><strong>${escHtml(nameA)} vs ${escHtml(nameB)}</strong>${c.k?'<br><span class="text-xs text-muted">k='+c.k+'</span>':''}</td>
+      <td>${eff}</td>
+      <td style="text-align:center">${domainSymbol(assessment.wsb)}</td>
+      <td style="text-align:center">${domainSymbol(assessment.rb)}</td>
+      <td style="text-align:center">${domainSymbol(assessment.ind)}</td>
+      <td style="text-align:center">${domainSymbol(assessment.imp)}</td>
+      <td style="text-align:center">${domainSymbol(assessment.het)}</td>
+      <td style="text-align:center">${domainSymbol(assessment.inc)}</td>
+      <td><span class="conf-badge ${confCls}">${escHtml(conf||'High')}</span></td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick="goAssess('${c.id}')">Edit</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const tableHtml = `<div class="cinema-table-wrap">
+    <table class="cinema-table">
+      <thead>
+        <tr>
+          <th>Comparison</th>
+          <th>${escHtml(state.effectMeasure||'Effect')} (95% CI)</th>
+          <th title="Within-study bias">WSB</th>
+          <th title="Reporting bias">RB</th>
+          <th title="Indirectness">IND</th>
+          <th title="Imprecision">IMP</th>
+          <th title="Heterogeneity">HET</th>
+          <th title="Incoherence">INC</th>
+          <th>Confidence</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+  el.innerHTML = tableHtml;
+}
+
+// ===== EXPORT =====
+function renderExportDropdown(){
+  const sel = document.getElementById('narrativeCompSelect');
+  const current = sel.value;
+  sel.innerHTML='<option value="">— choose comparison —</option>';
+  state.comparisons.forEach(c=>{
+    const opt=document.createElement('option');
+    opt.value=c.id;
+    opt.textContent=getTxShort(c.txA)+' vs '+getTxShort(c.txB);
+    sel.appendChild(opt);
+  });
+  sel.value=current;
+}
+
+function generateNarrative(){
+  const compId = document.getElementById('narrativeCompSelect').value;
+  const el = document.getElementById('narrativeOutput');
+  if(!compId){el.style.display='none';return;}
+  const comp = state.comparisons.find(c=>c.id===compId);
+  if(!comp){el.style.display='none';return;}
+  const assessment = state.assessments[compId]||{};
+  const conf = getConfidence(assessment)||'High';
+  const nameA=getTxName(comp.txA), nameB=getTxName(comp.txB);
+  const em=state.effectMeasure||'MD';
+  let lines=[];
+  lines.push('Comparison: '+nameA+' vs '+nameB);
+  if(comp.effect!==null) lines.push('Effect estimate: '+em+' '+formatEffect(comp.effect,comp.ciLo,comp.ciHi));
+  lines.push('Overall confidence (CINeMA): '+conf);
+  lines.push('');
+  DOMAINS.forEach(d=>{
+    const v=assessment[d.id]||'no';
+    const label=v==='no'?'No concern':v==='some'?'Some concern':'Major concern';
+    const fn=assessment['fn_'+d.id]||'';
+    lines.push(d.label+': '+label+(fn?' — '+fn:''));
+  });
+  let narrative='\n'+lines.join('\n');
+  // Downgrade reasons
+  const downs=[];
+  DOMAINS.forEach(d=>{
+    const v=assessment[d.id];
+    if(v==='some') downs.push(d.label+' (some concern)');
+    else if(v==='major') downs.push(d.label+' (major concern)');
+  });
+  if(downs.length){
+    narrative+='\n\nConfidence was downgraded due to: '+downs.join('; ')+'.';
+  } else {
+    narrative+='\n\nNo concerns were identified across any CINeMA domain; confidence was not downgraded.';
+  }
+  el.textContent=narrative;
+  el.style.display='block';
+}
+
+function buildTableHTMLForExport(){
+  const em = state.effectMeasure||'MD';
+  const domainSymbolText=(v)=>{
+    if(!v||v==='no') return 'No concern';
+    if(v==='some') return 'Some concern';
+    if(v==='major') return 'Major concern';
+    return '—';
+  };
+  const rows = state.comparisons.map(c=>{
+    const a=state.assessments[c.id]||{};
+    const conf=getConfidence(a)||'High';
+    const nA=getTxShort(c.txA), nB=getTxShort(c.txB);
+    const eff=c.effect!==null?c.effect.toFixed(2)+' ('+( c.ciLo!==null?c.ciLo.toFixed(2):'?')+', '+(c.ciHi!==null?c.ciHi.toFixed(2):'?')+')':'NR';
+    return '<tr><td>'+escHtml(nA)+' vs '+escHtml(nB)+'</td><td>'+escHtml(eff)+'</td>'
+      +DOMAINS.map(d=>'<td>'+escHtml(domainSymbolText(a[d.id]))+'</td>').join('')
+      +'<td>'+escHtml(conf)+'</td></tr>';
+  }).join('');
+  return '<table border="1" style="border-collapse:collapse;font-family:sans-serif;font-size:12px">'
+    +'<thead><tr><th>Comparison</th><th>'+escHtml(em)+' (95% CI)</th>'
+    +DOMAINS.map(d=>'<th>'+escHtml(d.short)+'</th>').join('')
+    +'<th>Confidence</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function copyTableHTML(){
+  const html=buildTableHTMLForExport();
+  navigator.clipboard.writeText(html).then(()=>alert('HTML table copied to clipboard!')).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=html;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    alert('HTML table copied to clipboard!');
+  });
+}
+
+function downloadCSV(){
+  const em=state.effectMeasure||'MD';
+  const header=['Comparison',em+' (95% CI)'].concat(DOMAINS.map(d=>d.label)).concat(['Confidence']);
+  const rows=state.comparisons.map(c=>{
+    const a=state.assessments[c.id]||{};
+    const conf=getConfidence(a)||'High';
+    const nA=getTxShort(c.txA), nB=getTxShort(c.txB);
+    const eff=c.effect!==null?c.effect.toFixed(2)+' ('+( c.ciLo!==null?c.ciLo.toFixed(2):'?')+', '+(c.ciHi!==null?c.ciHi.toFixed(2):'?')+')':'NR';
+    return [nA+' vs '+nB, eff].concat(DOMAINS.map(d=>{
+      const v=a[d.id]||'no';
+      return v==='no'?'No concern':v==='some'?'Some concern':'Major concern';
+    })).concat([conf]).map(v=>{
+      let s=String(v);
+      // Prevent CSV formula injection
+      if(/^[=+@\t\r]/.test(s)) s="'"+s;
+      return '"'+s.replace(/"/g,'""')+'"';
+    });
+  });
+  const csv=[header,].concat(rows).map(r=>r.join(',')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='cinema_assessment.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function downloadReport(){
+  const em=state.effectMeasure||'MD';
+  const tableHtml=buildTableHTMLForExport();
+  const narratives=state.comparisons.map(c=>{
+    const a=state.assessments[c.id]||{};
+    const conf=getConfidence(a)||'High';
+    const nA=getTxName(c.txA), nB=getTxName(c.txB);
+    const eff=c.effect!==null?em+' '+formatEffect(c.effect,c.ciLo,c.ciHi):'NR';
+    const domLines=DOMAINS.map(d=>{
+      const v=a[d.id]||'no';
+      const label=v==='no'?'No concern':v==='some'?'Some concern':'Major concern';
+      const fn=a['fn_'+d.id]||'';
+      return '<li><strong>'+escHtml(d.label)+':</strong> '+escHtml(label)+(fn?' — '+escHtml(fn):'')+'</li>';
+    }).join('');
+    return '<div style="margin-bottom:24px;page-break-inside:avoid"><h3>'+escHtml(nA)+' vs '+escHtml(nB)+'</h3>'
+      +'<p>Effect: '+escHtml(eff)+' &nbsp;|&nbsp; Confidence: <strong>'+escHtml(conf)+'</strong></p>'
+      +'<ul>'+domLines+'</ul></div>';
+  }).join('');
+  const report='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>CINeMA Report</title>'
+    +'<style>body{font-family:sans-serif;font-size:12pt;max-width:900px;margin:2rem auto}h1{color:#1e3a5f}h2{margin-top:2rem}table{width:100%;border-collapse:collapse;font-size:10pt}th,td{border:1px solid #ccc;padding:4px 8px}th{background:#f0f4f8}@media print{.no-print{display:none}}</style>'
+    +'</head><body><h1>CINeMA Assessment Report</h1>'
+    +'<p>Effect measure: '+escHtml(em)+'</p>'
+    +'<h2>Summary Table</h2>'+tableHtml
+    +'<h2>Detailed Assessments</h2>'+narratives
+    +'<p style="color:#888;font-size:9pt;margin-top:2rem">Generated with CINeMA Tool &mdash; '+new Date().toLocaleDateString()+'</p>'
+    +'</body></html>';
+  const blob=new Blob([report],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='cinema_report.html';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function printTable(){
+  const html=buildTableHTMLForExport();
+  const win=window.open('','_blank');
+  if(!win) return;
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>CINeMA Table</title>'
+    +'<style>body{font-family:sans-serif;font-size:11pt;padding:1rem}table{width:100%;border-collapse:collapse}th,td{border:1px solid #999;padding:4px 8px;font-size:9pt}th{background:#eef2f7}</style>'
+    +'</head><body><h2>CINeMA Summary Table</h2>'+html+'</body></html>');
+  win.document.close();
+  win.onload=function(){win.print();win.close();};
+}
+
+// ===== GLOBAL RENDER =====
+function renderAll(){
+  renderTreatments();
+  renderComparisons();
+  drawNetwork();
+  renderAssessDropdown();
+  renderCINeMATable();
+}
+
+// ===== CLEAR =====
+function clearAll(){openModal('confirmModal');}
+function confirmClear(){
+  state={treatments:[],comparisons:[],assessments:{},effectMeasure:'MD',clinThreshold:null,showLabels:true};
+  document.getElementById('effectMeasure').value='MD';
+  document.getElementById('clinThreshold').value='';
+  closeModal('confirmModal');
+  renderAll();
+  saveState();
+}
+
+// ===== EXAMPLES =====
+function loadExample(){openModal('exampleModal');}
+
+function loadExampleData(n){
+  closeModal('exampleModal');
+  if(n===1) loadExampleAntidepressants();
+  else if(n===2) loadExampleBP();
+  else if(n===3) loadExamplePain();
+  renderAll();
+  saveState();
+}
+
+function loadExampleAntidepressants(){
+  state.effectMeasure='OR';
+  state.clinThreshold=0.8;
+  const colors=['#2563eb','#16a34a','#dc2626','#d97706','#7c3aed','#0891b2','#c2410c'];
+  const txData=[
+    {n:'Sertraline',s:'SER',c:colors[0]},
+    {n:'Escitalopram',s:'ESC',c:colors[1]},
+    {n:'Venlafaxine',s:'VEN',c:colors[2]},
+    {n:'Mirtazapine',s:'MIR',c:colors[3]},
+    {n:'Fluoxetine',s:'FLU',c:colors[4]},
+    {n:'Duloxetine',s:'DUL',c:colors[5]},
+    {n:'Placebo',s:'PBO',c:colors[6]},
+  ];
+  state.treatments=txData.map((t,i)=>({id:'tx_ex1_'+i,name:t.n,short:t.s,color:t.c}));
+  const ids=state.treatments.map(t=>t.id);
+  const comps=[
+    {a:0,b:6, eff:1.61,lo:1.38,hi:1.87, k:22, dp:78, tau:0.15, de:1.58},
+    {a:1,b:6, eff:1.71,lo:1.47,hi:1.99, k:14, dp:85, tau:0.10, de:1.69},
+    {a:2,b:6, eff:1.49,lo:1.25,hi:1.77, k:17, dp:72, tau:0.18, de:1.44},
+    {a:3,b:6, eff:1.89,lo:1.55,hi:2.29, k:11, dp:60, tau:0.21, de:1.80},
+    {a:4,b:6, eff:1.47,lo:1.23,hi:1.74, k:19, dp:80, tau:0.13, de:1.43},
+    {a:5,b:6, eff:1.37,lo:1.16,hi:1.62, k:15, dp:75, tau:0.16, de:1.33},
+    {a:0,b:1, eff:0.94,lo:0.78,hi:1.13, k:6,  dp:40, tau:0.08, de:0.92},
+    {a:0,b:4, eff:1.10,lo:0.93,hi:1.29, k:8,  dp:55, tau:0.09, de:1.08},
+  ];
+  state.comparisons=comps.map((c,i)=>({
+    id:'comp_ex1_'+i, txA:ids[c.a], txB:ids[c.b],
+    effect:c.eff, ciLo:c.lo, ciHi:c.hi, k:c.k, directPct:c.dp, tau:c.tau, directEst:c.de
+  }));
+  const wsbMap=[0,0,1,1,0,1,0,0]; // 0=no,1=some
+  const rbMap=[0,0,1,2,0,1,0,0];  // 0=no,1=some,2=major
+  const lvl=['no','some','major'];
+  state.assessments={};
+  comps.forEach((c,i)=>{
+    const cid='comp_ex1_'+i;
+    state.assessments[cid]={
+      wsb:lvl[wsbMap[i]], rb:lvl[rbMap[i]], ind:'no', imp:'no', het:i<4?'some':'no', inc:i===3?'some':'no'
+    };
+  });
+  document.getElementById('effectMeasure').value='OR';
+  document.getElementById('clinThreshold').value='0.8';
+}
+
+function loadExampleBP(){
+  state.effectMeasure='MD';
+  state.clinThreshold=5;
+  const colors=['#2563eb','#16a34a','#dc2626','#d97706','#7c3aed'];
+  const txData=[
+    {n:'ACE inhibitors',s:'ACEi',c:colors[0]},
+    {n:'ARBs',s:'ARB',c:colors[1]},
+    {n:'Beta-blockers',s:'BB',c:colors[2]},
+    {n:'Calcium antagonists',s:'CCB',c:colors[3]},
+    {n:'Placebo',s:'PBO',c:colors[4]},
+  ];
+  state.treatments=txData.map((t,i)=>({id:'tx_ex2_'+i,name:t.n,short:t.s,color:t.c}));
+  const ids=state.treatments.map(t=>t.id);
+  const comps=[
+    {a:0,b:4, eff:-9.1,lo:-10.4,hi:-7.8, k:28, dp:88, tau:1.8, de:-9.0},
+    {a:1,b:4, eff:-8.5,lo:-9.9,hi:-7.1,  k:18, dp:82, tau:2.1, de:-8.3},
+    {a:2,b:4, eff:-7.8,lo:-9.2,hi:-6.4,  k:22, dp:79, tau:2.4, de:-7.5},
+    {a:3,b:4, eff:-10.3,lo:-11.6,hi:-9.0, k:31, dp:91, tau:1.5, de:-10.1},
+    {a:0,b:3, eff:1.2,lo:-0.2,hi:2.6,    k:8,  dp:55, tau:1.2, de:1.1},
+    {a:1,b:3, eff:1.8,lo:0.3,hi:3.3,     k:5,  dp:40, tau:1.4, de:1.7},
+  ];
+  state.comparisons=comps.map((c,i)=>({
+    id:'comp_ex2_'+i, txA:ids[c.a], txB:ids[c.b],
+    effect:c.eff, ciLo:c.lo, ciHi:c.hi, k:c.k, directPct:c.dp, tau:c.tau, directEst:c.de
+  }));
+  state.assessments={};
+  comps.forEach((c,i)=>{
+    state.assessments['comp_ex2_'+i]={wsb:'no',rb:'no',ind:'no',imp:'no',het:'no',inc:'no'};
+  });
+  document.getElementById('effectMeasure').value='MD';
+  document.getElementById('clinThreshold').value='5';
+}
+
+function loadExamplePain(){
+  state.effectMeasure='SMD';
+  state.clinThreshold=0.5;
+  const colors=['#2563eb','#16a34a','#dc2626','#d97706','#7c3aed','#0891b2'];
+  const txData=[
+    {n:'NSAIDs',s:'NSAIDs',c:colors[0]},
+    {n:'Opioids (weak)',s:'Opiw',c:colors[1]},
+    {n:'Opioids (strong)',s:'Opio',c:colors[2]},
+    {n:'Paracetamol',s:'Para',c:colors[3]},
+    {n:'Combinations',s:'Comb',c:colors[4]},
+    {n:'Placebo',s:'PBO',c:colors[5]},
+  ];
+  state.treatments=txData.map((t,i)=>({id:'tx_ex3_'+i,name:t.n,short:t.s,color:t.c}));
+  const ids=state.treatments.map(t=>t.id);
+  const comps=[
+    {a:0,b:5, eff:-0.42,lo:-0.62,hi:-0.22, k:18, dp:70, tau:0.28, de:-0.40},
+    {a:1,b:5, eff:-0.55,lo:-0.80,hi:-0.30, k:12, dp:60, tau:0.35, de:-0.48},
+    {a:2,b:5, eff:-0.70,lo:-0.95,hi:-0.45, k:9,  dp:50, tau:0.40, de:-0.58},
+    {a:3,b:5, eff:-0.28,lo:-0.45,hi:-0.11, k:14, dp:75, tau:0.18, de:-0.26},
+    {a:4,b:5, eff:-0.65,lo:-0.92,hi:-0.38, k:7,  dp:45, tau:0.38, de:-0.55},
+    {a:0,b:3, eff:-0.14,lo:-0.35,hi:0.07,  k:6,  dp:38, tau:0.22, de:-0.12},
+    {a:2,b:1, eff:-0.15,lo:-0.38,hi:0.08,  k:4,  dp:30, tau:0.20, de:-0.10},
+  ];
+  state.comparisons=comps.map((c,i)=>({
+    id:'comp_ex3_'+i, txA:ids[c.a], txB:ids[c.b],
+    effect:c.eff, ciLo:c.lo, ciHi:c.hi, k:c.k, directPct:c.dp, tau:c.tau, directEst:c.de
+  }));
+  // Mixed confidence — pain studies often have major bias issues
+  const wsb=['some','major','major','some','major','some','major'];
+  const rb=['some','some','major','no','some','some','some'];
+  state.assessments={};
+  comps.forEach((c,i)=>{
+    state.assessments['comp_ex3_'+i]={
+      wsb:wsb[i], rb:rb[i], ind:'some', imp:i>4?'some':'no', het:'some', inc:i===2||i===6?'some':'no'
+    };
+  });
+  document.getElementById('effectMeasure').value='SMD';
+  document.getElementById('clinThreshold').value='0.5';
+}
+
+// ===== NETWORK GRAPH =====
+const canvas = document.getElementById('networkCanvas');
+const ctx = canvas.getContext('2d');
+
+let nodes = []; // {id, x, y, vx, vy, color, label, short}
+let edges = []; // {a, b, k, direct}
+let draggingNode = null;
+let dragOffX=0, dragOffY=0;
+let animFrame=null;
+let simRunning=false;
+
+function buildGraph(){
+  const W = canvas.parentElement.clientWidth||800;
+  canvas.width = Math.max(W-32,300);
+  canvas.height = Math.min(Math.max(W*0.45, 280), 480);
+  const rng=mkPRNG(42);
+  const cx=canvas.width/2, cy=canvas.height/2;
+  const r=Math.min(cx,cy)*0.65;
+  nodes=state.treatments.map((t,i)=>{
+    const existing=nodes.find(n=>n.id===t.id);
+    if(existing) return {...existing, label:t.name, short:t.short, color:t.color};
+    const angle=(2*Math.PI*i/Math.max(state.treatments.length,1))-(Math.PI/2);
+    return {id:t.id, x:cx+r*Math.cos(angle), y:cy+r*Math.sin(angle), vx:0, vy:0, label:t.name, short:t.short, color:t.color};
+  });
+  edges=state.comparisons.map(c=>({a:c.txA, b:c.txB, k:c.k||1, directPct:c.directPct}));
+}
+
+function simulateStep(){
+  const W=canvas.width, H=canvas.height;
+  const k=0.015, repel=3000, damp=0.82, cx=W/2, cy=H/2;
+  nodes.forEach(n=>{
+    // Center attraction
+    n.vx+=(cx-n.x)*0.003;
+    n.vy+=(cy-n.y)*0.003;
+    // Node-node repulsion
+    nodes.forEach(m=>{
+      if(m===n) return;
+      const dx=n.x-m.x, dy=n.y-m.y;
+      const d2=dx*dx+dy*dy+1;
+      const f=repel/d2;
+      n.vx+=f*dx/Math.sqrt(d2);
+      n.vy+=f*dy/Math.sqrt(d2);
+    });
+  });
+  // Edge spring
+  edges.forEach(e=>{
+    const a=nodes.find(n=>n.id===e.a), b=nodes.find(n=>n.id===e.b);
+    if(!a||!b) return;
+    const dx=b.x-a.x, dy=b.y-a.y;
+    const d=Math.sqrt(dx*dx+dy*dy)||1;
+    const ideal=W*0.28;
+    const f=(d-ideal)*k;
+    a.vx+=f*dx/d; a.vy+=f*dy/d;
+    b.vx-=f*dx/d; b.vy-=f*dy/d;
+  });
+  nodes.forEach(n=>{
+    if(n===draggingNode) return;
+    n.x+=n.vx; n.y+=n.vy;
+    n.vx*=damp; n.vy*=damp;
+    const pad=32;
+    n.x=Math.max(pad,Math.min(W-pad,n.x));
+    n.y=Math.max(pad,Math.min(H-pad,n.y));
+  });
+}
+
+function drawNetwork(){
+  if(!canvas) return;
+  buildGraph();
+  cancelAnimationFrame(animFrame);
+  simRunning=true;
+  let iter=0;
+  function frame(){
+    for(let i=0;i<3;i++) simulateStep();
+    drawFrame();
+    iter++;
+    // Convergence: stop early if total kinetic energy is negligible
+    let totalKE=0;
+    nodes.forEach(n=>{totalKE+=n.vx*n.vx+n.vy*n.vy;});
+    if(iter<120&&simRunning&&totalKE>0.01) animFrame=requestAnimationFrame(frame);
+    else simRunning=false;
+  }
+  animFrame=requestAnimationFrame(frame);
+}
+
+function drawFrame(){
+  const W=canvas.width, H=canvas.height;
+  const isDark=document.body.classList.contains('dark');
+  ctx.clearRect(0,0,W,H);
+  // Background
+  ctx.fillStyle=isDark?'#1e293b':'#f8fafc';
+  ctx.fillRect(0,0,W,H);
+
+  if(!nodes.length){
+    ctx.fillStyle=isDark?'#475569':'#94a3b8';
+    ctx.font='14px '+document.body.style.fontFamily||'sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('Add treatments to see the network graph',W/2,H/2);
+    return;
+  }
+
+  const maxK=Math.max(...edges.map(e=>e.k),1);
+  // Draw edges
+  edges.forEach(e=>{
+    const a=nodes.find(n=>n.id===e.a), b=nodes.find(n=>n.id===e.b);
+    if(!a||!b) return;
+    const lw=1+Math.round((e.k/maxK)*5);
+    ctx.beginPath();
+    ctx.moveTo(a.x,a.y);
+    ctx.lineTo(b.x,b.y);
+    ctx.lineWidth=lw;
+    ctx.strokeStyle=isDark?'rgba(148,163,184,0.45)':'rgba(100,116,139,0.4)';
+    ctx.stroke();
+    // k label
+    const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+    ctx.fillStyle=isDark?'#94a3b8':'#64748b';
+    ctx.font='bold 10px sans-serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText('k='+e.k, mx, my-7);
+  });
+
+  // Draw nodes
+  const nodeR=22;
+  nodes.forEach(n=>{
+    // Shadow
+    ctx.beginPath();
+    ctx.arc(n.x,n.y,nodeR+2,0,Math.PI*2);
+    ctx.fillStyle=isDark?'rgba(0,0,0,.4)':'rgba(0,0,0,.1)';
+    ctx.fill();
+    // Fill
+    ctx.beginPath();
+    ctx.arc(n.x,n.y,nodeR,0,Math.PI*2);
+    ctx.fillStyle=n.color||'#2563eb';
+    ctx.fill();
+    // Border
+    ctx.beginPath();
+    ctx.arc(n.x,n.y,nodeR,0,Math.PI*2);
+    ctx.strokeStyle=isDark?'rgba(255,255,255,0.2)':'rgba(255,255,255,0.7)';
+    ctx.lineWidth=2;
+    ctx.stroke();
+    // Short label inside
+    ctx.fillStyle='#ffffff';
+    ctx.font='bold 9px sans-serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(n.short.slice(0,5),n.x,n.y);
+    // Full label outside if enabled
+    if(state.showLabels){
+      ctx.fillStyle=isDark?'#cbd5e1':'#334155';
+      ctx.font='11px sans-serif';
+      ctx.textAlign='center';
+      ctx.textBaseline='top';
+      const labelY=n.y+nodeR+4;
+      ctx.fillText(n.label.length>14?n.label.slice(0,13)+'…':n.label, n.x, labelY);
+    }
+  });
+}
+
+function resetLayout(){
+  nodes=[];
+  drawNetwork();
+}
+
+function toggleLabels(){
+  state.showLabels=!state.showLabels;
+  drawFrame();
+  saveState();
+}
+
+// Mouse/touch drag
+canvas.addEventListener('mousedown', function(e){
+  const rect=canvas.getBoundingClientRect();
+  const sx=canvas.width/rect.width, sy=canvas.height/rect.height;
+  const mx=(e.clientX-rect.left)*sx, my=(e.clientY-rect.top)*sy;
+  draggingNode=nodes.find(n=>{const dx=n.x-mx,dy=n.y-my;return Math.sqrt(dx*dx+dy*dy)<26;})||null;
+  if(draggingNode){dragOffX=draggingNode.x-mx;dragOffY=draggingNode.y-my;}
+});
+canvas.addEventListener('mousemove', function(e){
+  if(!draggingNode) return;
+  const rect=canvas.getBoundingClientRect();
+  const sx=canvas.width/rect.width, sy=canvas.height/rect.height;
+  draggingNode.x=(e.clientX-rect.left)*sx+dragOffX;
+  draggingNode.y=(e.clientY-rect.top)*sy+dragOffY;
+  draggingNode.vx=0; draggingNode.vy=0;
+  drawFrame();
+});
+canvas.addEventListener('mouseup',function(){draggingNode=null;});
+canvas.addEventListener('mouseleave',function(){draggingNode=null;});
+
+// Touch support
+canvas.addEventListener('touchstart', function(e){
+  e.preventDefault();
+  const touch=e.touches[0];
+  const rect=canvas.getBoundingClientRect();
+  const sx=canvas.width/rect.width, sy=canvas.height/rect.height;
+  const mx=(touch.clientX-rect.left)*sx, my=(touch.clientY-rect.top)*sy;
+  draggingNode=nodes.find(n=>{const dx=n.x-mx,dy=n.y-my;return Math.sqrt(dx*dx+dy*dy)<30;})||null;
+  if(draggingNode){dragOffX=draggingNode.x-mx;dragOffY=draggingNode.y-my;}
+},{passive:false});
+canvas.addEventListener('touchmove', function(e){
+  e.preventDefault();
+  if(!draggingNode) return;
+  const touch=e.touches[0];
+  const rect=canvas.getBoundingClientRect();
+  const sx=canvas.width/rect.width, sy=canvas.height/rect.height;
+  draggingNode.x=(touch.clientX-rect.left)*sx+dragOffX;
+  draggingNode.y=(touch.clientY-rect.top)*sy+dragOffY;
+  draggingNode.vx=0; draggingNode.vy=0;
+  drawFrame();
+},{passive:false});
+canvas.addEventListener('touchend', function(){draggingNode=null;});
+
+// Resize observer
+if(window.ResizeObserver){
+  new ResizeObserver(()=>{
+    const W=canvas.parentElement.clientWidth||800;
+    if(Math.abs(canvas.width-(W-32))>20) drawNetwork();
+  }).observe(canvas.parentElement);
+}
+
+// Keyboard: Enter/Space on radio options
+document.addEventListener('keydown', function(e){
+  if((e.key==='Enter'||e.key===' ')&&e.target.type==='radio'){
+    e.preventDefault(); e.target.click();
+  }
+});
+
+// Responsive grid
+function adjustGridLayout(){
+  const grid=document.querySelector('.top-grid');
+  if(!grid) return;
+  if(window.innerWidth<700){
+    grid.style.gridTemplateColumns='1fr';
+  } else {
+    grid.style.gridTemplateColumns='1fr 1fr';
+  }
+}
+adjustGridLayout();
+window.addEventListener('resize', adjustGridLayout);
+</script>
+</body>
+</html>
+</html>
