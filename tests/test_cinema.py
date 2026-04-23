@@ -1,24 +1,44 @@
 """Selenium tests for CINeMA — Confidence in Network Meta-Analysis."""
-import sys, io, os, unittest, time
+import io
+import sys
+import time
+import unittest
+from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from pathlib import Path
+from threading import Thread
 
-from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-HTML = 'file:///' + os.path.abspath(r'C:\Models\CINeMA\cinema.html').replace('\\', '/')
+ROOT = Path(__file__).resolve().parent.parent.parent
+HOME_USER = Path("/mnt/c/Users/user")
+for candidate in (HOME_USER, ROOT):
+    if candidate.exists() and str(candidate) not in sys.path:
+        sys.path.insert(0, str(candidate))
+
+from browser_rotator import get_driver
+
+APP_ROOT = Path(__file__).resolve().parent.parent
+PORT = 8093
+HTML = f"http://127.0.0.1:{PORT}/cinema.html"
+
+
+class QuietHandler(SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory=str(APP_ROOT), **kwargs)
+
+    def log_message(self, format, *args):
+        pass
 
 
 class TestCINeMA(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        opts = Options()
-        opts.add_argument('--headless=new')
-        opts.add_argument('--no-sandbox')
-        opts.add_argument('--disable-gpu')
-        opts.add_argument('--window-size=1400,900')
-        cls.drv = webdriver.Chrome(options=opts)
+        cls.server = ThreadingHTTPServer(("127.0.0.1", PORT), QuietHandler)
+        cls.thread = Thread(target=cls.server.serve_forever, daemon=True)
+        cls.thread.start()
+        cls.drv = get_driver()
         cls.drv.get(HTML)
         time.sleep(1.5)
         # Clear saved state
@@ -29,6 +49,8 @@ class TestCINeMA(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.drv.quit()
+        cls.server.shutdown()
+        cls.server.server_close()
 
     def js(self, script):
         return self.drv.execute_script(script)
