@@ -12,8 +12,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-HOME_USER = Path("/mnt/c/Users/user")
-for candidate in (HOME_USER, ROOT):
+HOME_CANDIDATES = (
+    Path.home(),
+    Path("C:/Users/user"),
+    Path("/mnt/c/Users/user"),
+    ROOT,
+)
+for candidate in HOME_CANDIDATES:
     if candidate.exists() and str(candidate) not in sys.path:
         sys.path.insert(0, str(candidate))
 
