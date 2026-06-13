@@ -22,7 +22,22 @@ for candidate in HOME_CANDIDATES:
     if candidate.exists() and str(candidate) not in sys.path:
         sys.path.insert(0, str(candidate))
 
-from browser_rotator import get_driver
+try:
+    from browser_rotator import get_driver
+except ImportError:
+    # Self-contained fallback so the suite runs without the shared
+    # browser_rotator helper present in the user's home directory.
+    def get_driver():
+        from selenium import webdriver
+        from selenium.webdriver.chrome.options import Options
+        opts = Options()
+        opts.add_argument("--headless=new")
+        opts.add_argument("--no-sandbox")
+        opts.add_argument("--disable-dev-shm-usage")
+        opts.add_argument("--disable-gpu")
+        opts.add_argument("--window-size=1400,1000")
+        opts.set_capability("goog:loggingPrefs", {"browser": "ALL"})
+        return webdriver.Chrome(options=opts)
 
 APP_ROOT = Path(__file__).resolve().parent.parent
 PORT = 8093
