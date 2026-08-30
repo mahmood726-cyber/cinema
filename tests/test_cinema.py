@@ -338,8 +338,15 @@ class TestCINeMA(unittest.TestCase):
     # ================================================================
     # 23. getAutoSuggestions — incoherence
     # ================================================================
-    def test_23_autosugg_incoherence(self):
-        """Direct estimate differing by >2 SE triggers major concern."""
+    def test_23_autosugg_incoherence_is_not_a_verdict(self):
+        """A large direct-vs-network gap is REPORTED, never adjudicated.
+
+        This test previously asserted level == 'flag' -- it encoded the
+        behaviour rather than the requirement, and so it DEFENDED the defect:
+        the old code divided the gap by the NETWORK SE, which is smaller than
+        sqrt(var_direct + var_indirect), and over-flagged incoherence. The
+        tool holds no indirect estimate, so it must not rate this domain at
+        all."""
         sugg = self.js("""
             state.effectMeasure = 'MD';
             state.clinThreshold = 5;
@@ -347,14 +354,26 @@ class TestCINeMA(unittest.TestCase):
             return getAutoSuggestions(comp);
         """)
         self.assertIn('inc', sugg)
-        # diff=3.0, SE=0.51, 3.0 > 2*0.51 -> flag
-        self.assertEqual(sugg['inc']['level'], 'flag')
+        self.assertEqual(sugg['inc']['level'], 'note',
+                         "incoherence must be a neutral note, not a verdict")
+        text = sugg['inc']['text']
+        for banned in ('Major concern', 'Some concern', 'consider'):
+            self.assertNotIn(banned, text,
+                             "a domain the tool cannot compute must not be rated")
+        self.assertIn('not a node-splitting test', text)
 
     # ================================================================
     # 24. getAutoSuggestions — incoherence consistent
     # ================================================================
-    def test_24_autosugg_incoherence_consistent(self):
-        """Direct estimate close to network estimate -> ok."""
+    def test_24_autosugg_incoherence_never_claims_consistency(self):
+        """A SMALL gap must not be reported as agreement.
+
+        This test previously asserted level == 'ok', which pinned the
+        sentence "Direct and indirect estimates are consistent." -- an
+        assertion of agreement with an indirect estimate this tool never
+        computes. False reassurance is worse than over-flagging: over-flagging
+        makes a reader look again, this made them stop looking. The regression
+        guard is the banned string, so the claim cannot return quietly."""
         sugg = self.js("""
             state.effectMeasure = 'MD';
             state.clinThreshold = 5;
@@ -362,7 +381,11 @@ class TestCINeMA(unittest.TestCase):
             return getAutoSuggestions(comp);
         """)
         self.assertIn('inc', sugg)
-        self.assertEqual(sugg['inc']['level'], 'ok')
+        self.assertNotEqual(sugg['inc']['level'], 'ok',
+                            "a domain the tool cannot compute must not pass it")
+        self.assertNotIn('consistent', sugg['inc']['text'],
+                         "must not assert agreement with an uncomputed indirect estimate")
+        self.assertNotIn('indirect estimates are', sugg['inc']['text'])
 
     # ================================================================
     # 25. Tab switching

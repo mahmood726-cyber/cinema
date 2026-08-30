@@ -122,6 +122,7 @@ textarea{resize:vertical;min-height:60px}
 .suggestion-box{margin-top:.5rem;padding:.4rem .6rem;border-radius:5px;font-size:.75rem;border-left:3px solid;background:var(--surface)}
 .suggestion-box.warn{border-color:var(--some-concern);background:var(--some-bg);color:var(--some-concern)}
 .suggestion-box.ok{border-color:var(--no-concern);background:var(--no-bg);color:var(--no-concern)}
+.suggestion-box.note{border-color:var(--text-muted,#94a3b8);background:var(--surface);color:var(--text-muted,#64748b)}
 .suggestion-box.flag{border-color:var(--major-concern);background:var(--major-bg);color:var(--major-concern)}
 .domain-footnote{margin-top:.5rem}
 .domain-footnote textarea{font-size:.76rem;min-height:44px;padding:.35rem .5rem}
@@ -895,17 +896,32 @@ function getAutoSuggestions(comp){
       sugg.het = {level:'ok', text:'Prediction interval similar to CI width (tau='+tau.toFixed(3)+').'};
     }
   }
-  // Incoherence
-  if(comp.directEst!==null&&isFinite(comp.directEst)&&comp.effect!==null&&comp.ciLo!==null&&comp.ciHi!==null){
-    const se = (comp.ciHi-comp.ciLo)/3.92;
+  // Incoherence — DISPLAY ONLY. Withdrawn as a test on 2026-08-30.
+  //
+  // This block previously divided |direct − network| by the NETWORK standard
+  // error and issued 'Major concern' / 'Some concern' verdicts. That is not a
+  // node-splitting test and the arithmetic is wrong in a known direction: a
+  // direct-vs-indirect comparison needs sqrt(var_direct + var_indirect), and
+  // the network SE is SMALLER than either component because the network
+  // estimate pools both — so the ratio is inflated and incoherence is
+  // OVER-FLAGGED. The quantity compared was also direct − network, not
+  // direct − indirect.
+  //
+  // Worse, the pass branch said 'Direct and indirect estimates are
+  // consistent.' This tool holds no indirect estimate. It asserted agreement
+  // with a quantity it had never computed — a false reassurance, which is
+  // more damaging than over-flagging: over-flagging makes a reader look
+  // again, false reassurance makes them stop looking.
+  //
+  // The correct denominator is not recoverable here: the tool takes an
+  // analyst-typed direct estimate and a network CI, and holds no variance
+  // components at all. A denominator that cannot be computed cannot be fixed,
+  // so the INFERENCE is withdrawn rather than repaired. The discrepancy is
+  // still shown, because the number itself is real and useful; only the
+  // verdict drawn from it was not.
+  if(comp.directEst!==null&&isFinite(comp.directEst)&&comp.effect!==null){
     const diff = Math.abs(comp.directEst - comp.effect);
-    if(diff > 2*se){
-      sugg.inc = {level:'flag', text:'Direct estimate ('+comp.directEst.toFixed(2)+') differs from network by '+diff.toFixed(2)+' (>2 SE) — consider Major concern for incoherence.'};
-    } else if(diff > se){
-      sugg.inc = {level:'warn', text:'Direct estimate ('+comp.directEst.toFixed(2)+') differs from network by '+diff.toFixed(2)+' (>1 SE) — consider Some concern.'};
-    } else {
-      sugg.inc = {level:'ok', text:'Direct and indirect estimates are consistent.'};
-    }
+    sugg.inc = {level:'note', text:'Analyst-entered direct estimate ('+comp.directEst.toFixed(2)+') differs from the network estimate ('+comp.effect.toFixed(2)+') by '+diff.toFixed(2)+'. This is a raw discrepancy, not a node-splitting test: no indirect estimate is computed here. Judge incoherence yourself, or from dedicated NMA software.'};
   }
   return sugg;
 }
@@ -964,7 +980,7 @@ function loadAssessment(){
     const val = assessment[d.id] || 'no';
     const cardClass = val==='no' ? 'no-concern' : val==='some' ? 'some-concern' : 'major-concern';
     const s = sugg[d.id];
-    const suggHtml = s ? `<div class="suggestion-box ${s.level==='ok'?'ok':s.level==='warn'?'warn':'flag'}">${escHtml(s.text)}</div>` : '';
+    const suggHtml = s ? `<div class="suggestion-box ${s.level==='ok'?'ok':s.level==='warn'?'warn':s.level==='note'?'note':'flag'}">${escHtml(s.text)}</div>` : '';
     const footnote = assessment['fn_'+d.id] || '';
     const radioHtml = CONCERN_LEVELS.map(lv=>`
       <label class="radio-option">
