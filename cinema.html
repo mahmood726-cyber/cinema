@@ -1082,6 +1082,8 @@ function clearAssessment(compId){
   if(!confirm('Reset all domain judgments for this comparison?')) return;
   delete state.assessments[compId];
   saveState();
+  // Keep the selected comparison and its dropdown certainty status in sync.
+  renderAssessDropdown();
   loadAssessment();
   renderComparisons();
 }
