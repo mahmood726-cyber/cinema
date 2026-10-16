@@ -23,7 +23,8 @@ function makeApp(filename) {
         id, innerHTML: '', textContent: '', value: '', style: {}, options: [],
         parentElement: {clientWidth: 800},
         classList: {add() {}, remove() {}},
-        addEventListener() {}, getContext() { return {}; },
+        addEventListener() {}, querySelector() { return null; },
+        getContext() { return {}; },
         appendChild(child) { this.options.push(child); },
         removeChild() {}, click() {}, select() {}
       });
