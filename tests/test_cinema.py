@@ -642,6 +642,9 @@ class TestCINeMA(unittest.TestCase):
             document.getElementById('assessCompSelect').value = cid;
             loadAssessment();
             renderCINeMATable();
+            // Refresh options after changing the example; otherwise the previous
+            // example's comparison remains selected and stale narrative persists.
+            renderExportDropdown();
             document.getElementById('narrativeCompSelect').value = cid;
             generateNarrative();
             return {
@@ -684,6 +687,31 @@ class TestCINeMA(unittest.TestCase):
         self.assertEqual(result['checked'], 6)
         self.assertEqual(result['note'], 'Evidence retained')
         self.assertIn('Evidence retained', result['saved'])
+
+
+    def test_48_pending_hint_clears_on_manual_rating(self):
+        """Choosing a domain rating immediately removes only that domain's pending hint."""
+        self._load_bp_example()
+        result = self.js("""
+            const cid = state.comparisons[0].id;
+            state.assessments[cid] = {};
+            document.getElementById('assessCompSelect').value = cid;
+            loadAssessment();
+            const before = document.querySelectorAll('#assessmentContent .domain-pending-note').length;
+            updateDomain(cid, 'wsb', 'no');
+            const after = document.querySelectorAll('#assessmentContent .domain-pending-note').length;
+            return {
+                before, after,
+                selected: document.querySelectorAll('#assessmentContent input[type=radio]:checked').length,
+                value: state.assessments[cid].wsb,
+                grade: getConfidence(state.assessments[cid])
+            };
+        """)
+        self.assertEqual(result['before'], 6)
+        self.assertEqual(result['after'], 5)
+        self.assertEqual(result['selected'], 1)
+        self.assertEqual(result['value'], 'no')
+        self.assertIsNone(result['grade'])
 
 
 if __name__ == '__main__':
