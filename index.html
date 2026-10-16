@@ -980,7 +980,7 @@ function loadAssessment(){
   const domainCards = DOMAINS.map(d=>{
     const val = domainRating(assessment, d.id);
     const cardClass = val===null ? 'unassessed' : val==='no' ? 'no-concern' : val==='some' ? 'some-concern' : 'major-concern';
-    const pendingNote = val===null ? '<div class="text-xs text-muted">Not assessed — select a concern level.</div>' : '';
+    const pendingNote = val===null ? '<div class="domain-pending-note text-xs text-muted">Not assessed — select a concern level.</div>' : '';
     const s = sugg[d.id];
     const suggHtml = s ? `<div class="suggestion-box ${s.level==='ok'?'ok':s.level==='warn'?'warn':'flag'}">${escHtml(s.text)}</div>` : '';
     const footnote = assessment['fn_'+d.id] || '';
@@ -992,7 +992,7 @@ function loadAssessment(){
     return `
     <div class="domain-card ${cardClass}" id="dc_${d.id}_${compId}">
       <div class="domain-title">
-        <span class="conf-badge ${cardClass.replace('-concern','').replace('no','').trim()}" style="font-size:.7rem;padding:.1rem .4rem">${escHtml(d.short)}</span>
+        <span class="conf-badge ${val===null?'pending':cardClass.replace('-concern','').replace('no','').trim()}" style="font-size:.7rem;padding:.1rem .4rem">${escHtml(d.short)}</span>
         ${escHtml(d.label)}
       </div>
       <div class="domain-desc">${escHtml(d.desc)}</div>
@@ -1056,6 +1056,11 @@ function updateDomain(compId, domainId, value){
   if(card){
     card.classList.remove('no-concern','some-concern','major-concern','unassessed');
     card.classList.add(value==='no'?'no-concern':value==='some'?'some-concern':'major-concern');
+    // Remove the pending hint immediately after a manual judgment.
+    const hint = card.querySelector('.domain-pending-note');
+    if(hint) hint.remove();
+    const badge = card.querySelector('.conf-badge');
+    if(badge) badge.classList.remove('pending');
   }
   // Update confidence display
   const assessment = state.assessments[compId];
