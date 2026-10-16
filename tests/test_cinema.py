@@ -715,6 +715,32 @@ class TestCINeMA(unittest.TestCase):
         self.assertIsNone(result['grade'])
 
 
+    def test_49_reset_domains_does_not_leave_stale_high_dropdown(self):
+        """Reset clears confidence and updates the same selected comparison in the UI."""
+        self._load_bp_example()
+        result = self.js("""
+            const cid = state.comparisons[0].id;
+            document.getElementById('assessCompSelect').value = cid;
+            loadAssessment();
+            const before = document.getElementById('assessCompSelect').selectedOptions[0].textContent;
+            const confirmBefore = window.confirm;
+            window.confirm = () => true;
+            try { clearAssessment(cid); } finally { window.confirm = confirmBefore; }
+            return {
+                before,
+                after: document.getElementById('assessCompSelect').selectedOptions[0].textContent,
+                current: document.getElementById('assessCompSelect').value,
+                grade: getConfidence(state.assessments[cid]),
+                checked: document.querySelectorAll('#assessmentContent input[type=radio]:checked').length
+            };
+        """)
+        self.assertIn('[High]', result['before'])
+        self.assertIn('[Not assessed]', result['after'])
+        self.assertEqual(result['current'], 'comp_ex2_0')
+        self.assertIsNone(result['grade'])
+        self.assertEqual(result['checked'], 0)
+
+
 if __name__ == '__main__':
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     unittest.main(verbosity=2)
