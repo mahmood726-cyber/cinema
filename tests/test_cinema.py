@@ -698,7 +698,8 @@ class TestCINeMA(unittest.TestCase):
             document.getElementById('assessCompSelect').value = cid;
             loadAssessment();
             const before = document.querySelectorAll('#assessmentContent .domain-pending-note').length;
-            updateDomain(cid, 'wsb', 'no');
+            // Trigger a real radio click: updateDomain alone does not select the DOM input.
+            document.querySelector('input[name="domain_wsb_'+cid+'"][value="no"]').click();
             const after = document.querySelectorAll('#assessmentContent .domain-pending-note').length;
             return {
                 before, after,
