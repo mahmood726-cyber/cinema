@@ -161,12 +161,12 @@ class TestCINeMA(unittest.TestCase):
         self.assertEqual(val, 'Very Low')
 
     # ================================================================
-    # 8. getConfidence — null/empty assessment = High
+    # 8. Missing six-domain assessment must not be mistaken for High
     # ================================================================
     def test_08_confidence_empty(self):
-        """Empty assessment object -> High (no concerns detected)."""
+        """Empty assessment has no overall certainty judgment."""
         val = self.js("return getConfidence({});")
-        self.assertEqual(val, 'High')
+        self.assertIsNone(val)
 
     # ================================================================
     # 9. getConfidence — null returns null
@@ -631,6 +631,59 @@ class TestCINeMA(unittest.TestCase):
         self.assertIn('Downgraded for', html)
         self.assertIn('WSB', html)
         self.assertIn('RB', html)
+
+
+    def test_46_incomplete_domain_browser_ui_and_exports(self):
+        """A partial assessment remains pending across cards, table and narrative."""
+        self._load_bp_example()
+        result = self.js("""
+            const cid = state.comparisons[0].id;
+            state.assessments[cid] = {wsb:'some', fn_wsb:'Manual source citation'};
+            document.getElementById('assessCompSelect').value = cid;
+            loadAssessment();
+            renderCINeMATable();
+            document.getElementById('narrativeCompSelect').value = cid;
+            generateNarrative();
+            return {
+                grade: getConfidence(state.assessments[cid]),
+                checked: document.querySelectorAll('#assessmentContent input[type=radio]:checked').length,
+                unassessed: document.querySelectorAll('#assessmentContent .domain-card.unassessed').length,
+                confidenceLabel: document.querySelector('#assessmentContent .confidence-value').textContent,
+                tableText: document.getElementById('cinemaTableContainer').textContent,
+                htmlExport: buildTableHTMLForExport(),
+                narrative: document.getElementById('narrativeOutput').textContent
+            };
+        """)
+        self.assertIsNone(result['grade'])
+        self.assertEqual(result['checked'], 1)
+        self.assertEqual(result['unassessed'], 5)
+        self.assertEqual(result['confidenceLabel'], 'Not assessed')
+        self.assertIn('Not assessed', result['tableText'])
+        self.assertIn('Not assessed', result['htmlExport'])
+        self.assertIn('unassessed domains', result['narrative'])
+        self.assertNotIn('No concerns were identified across any CINeMA domain', result['narrative'])
+        self.assertIn('Manual source citation', result['narrative'])
+
+    def test_47_all_six_manual_judgments_restore_original_grade(self):
+        """Completing all six domains produces historical Moderate with footnote intact."""
+        self._load_bp_example()
+        result = self.js("""
+            const cid = state.comparisons[0].id;
+            state.assessments[cid] = {wsb:'some', fn_wsb:'Evidence retained'};
+            for (const id of ['rb','ind','imp','het','inc']) updateDomain(cid,id,'no');
+            document.getElementById('assessCompSelect').value = cid;
+            loadAssessment();
+            return {
+                grade: getConfidence(state.assessments[cid]),
+                checked: document.querySelectorAll('#assessmentContent input[type=radio]:checked').length,
+                note: state.assessments[cid].fn_wsb,
+                saved: localStorage.getItem('cinema_app_v1')
+            };
+        """)
+        self.assertEqual(result['grade'], 'Moderate')
+        self.assertEqual(result['checked'], 6)
+        self.assertEqual(result['note'], 'Evidence retained')
+        self.assertIn('Evidence retained', result['saved'])
 
 
 if __name__ == '__main__':
