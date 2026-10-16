@@ -1,0 +1,52 @@
+name: CINeMA six-domain certainty regressions
+
+on:
+  pull_request:
+    paths:
+      - 'cinema.html'
+      - 'index.html'
+      - 'tests/test_cinema.py'
+      - 'tests/cinema_pending_assessments.test.cjs'
+      - '.github/workflows/cinema-certainty.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'cinema.html'
+      - 'index.html'
+      - 'tests/test_cinema.py'
+      - 'tests/cinema_pending_assessments.test.cjs'
+      - '.github/workflows/cinema-certainty.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  node-source-integrity:
+    name: Node live-page and export regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exercise both shipped HTML scripts and their output paths
+        run: node --test tests/cinema_pending_assessments.test.cjs
+
+  selenium-browser:
+    name: Chrome browser integration regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+          install-chromedriver: true
+      - name: Install Selenium
+        run: python -m pip install 'selenium>=4.21,<5'
+      - name: Run original and new full-browser CINeMA assertions
+        run: python -m unittest discover -s tests -p 'test_cinema.py' -v
