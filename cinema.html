@@ -113,6 +113,7 @@ textarea{resize:vertical;min-height:60px}
 .domain-card.no-concern{border-color:var(--no-border);background:var(--no-bg)}
 .domain-card.some-concern{border-color:var(--some-border);background:var(--some-bg)}
 .domain-card.major-concern{border-color:var(--major-border);background:var(--major-bg)}
+.domain-card.unassessed{border-color:var(--border);background:var(--surface2)}
 .domain-title{font-size:.88rem;font-weight:700;margin-bottom:.3rem;display:flex;align-items:center;gap:.5rem}
 .domain-desc{font-size:.76rem;color:var(--text2);margin-bottom:.75rem;line-height:1.4}
 .radio-group{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem}
@@ -134,6 +135,7 @@ textarea{resize:vertical;min-height:60px}
 .conf-moderate{color:var(--moderate)}
 .conf-low{color:var(--low)}
 .conf-verylow{color:var(--verylow)}
+.conf-pending{color:var(--text3)}
 .downgrade-info{font-size:.78rem;color:var(--text2);line-height:1.4}
 .conf-bar{display:flex;gap:2px;margin-top:.4rem}
 .conf-bar-seg{height:6px;flex:1;border-radius:2px;background:var(--border);transition:background var(--transition)}
@@ -159,6 +161,7 @@ table.cinema-table tr:hover td{background:var(--surface2)}
 .conf-badge.moderate{background:var(--moderate-bg);color:var(--moderate);border:1px solid var(--moderate-border)}
 .conf-badge.low{background:var(--low-bg);color:var(--low);border:1px solid var(--low-border)}
 .conf-badge.verylow{background:var(--verylow-bg);color:var(--verylow);border:1px solid var(--verylow-border)}
+.conf-badge.pending{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
 .effect-cell{font-weight:600;font-size:.82rem}
 .effect-ci{font-size:.74rem;color:var(--text2);font-weight:400}
 
@@ -837,14 +840,29 @@ function getTxColor(id){
 }
 
 // ===== CONFIDENCE CALCULATION =====
+// A missing, empty, or invalid manual rating is NOT a judgement of "No concern".
+function domainRating(assessment, domainId){
+  const value = assessment && typeof assessment==='object' ? assessment[domainId] : null;
+  return CONCERN_LEVELS.includes(value) ? value : null;
+}
+function unassessedDomains(assessment){
+  return DOMAINS.filter(d=>domainRating(assessment,d.id)===null);
+}
+function domainLabel(value){
+  return value==='no' ? 'No concern'
+    : value==='some' ? 'Some concern'
+    : value==='major' ? 'Major concern' : 'Not assessed';
+}
 function getConfidence(assessment){
-  if(!assessment) return null;
+  // Do not infer a summary rating until all six domains have explicit judgments.
+  if(unassessedDomains(assessment).length) return null;
   let downgrades = 0;
   DOMAINS.forEach(d=>{
-    const v = assessment[d.id];
+    const v = domainRating(assessment, d.id);
     if(v==='some') downgrades += 1;
     else if(v==='major') downgrades += 2;
   });
+  // Existing complete-case formula is unchanged; this does not recalibrate CINeMA.
   if(downgrades===0) return 'High';
   if(downgrades===1) return 'Moderate';
   if(downgrades<=3) return 'Low';
@@ -921,7 +939,7 @@ function renderAssessDropdown(){
     const nameA = getTxShort(c.txA);
     const nameB = getTxShort(c.txB);
     const assessed = state.assessments[c.id];
-    const conf = assessed ? (' ['+getConfidence(assessed)+']') : ' [—]';
+    const conf = ' ['+(getConfidence(assessed)||'Not assessed')+']';
     opt.textContent = nameA+' vs '+nameB+conf;
     sel.appendChild(opt);
   });
@@ -943,7 +961,6 @@ function loadAssessment(){
   const nameA = getTxName(comp.txA);
   const nameB = getTxName(comp.txB);
   const conf = getConfidence(assessment);
-  const confClass = conf ? conf.toLowerCase().replace(' ','') : 'high';
 
   let effectInfo = '';
   if(comp.effect!==null){
@@ -961,8 +978,9 @@ function loadAssessment(){
 
   // Domain cards
   const domainCards = DOMAINS.map(d=>{
-    const val = assessment[d.id] || 'no';
-    const cardClass = val==='no' ? 'no-concern' : val==='some' ? 'some-concern' : 'major-concern';
+    const val = domainRating(assessment, d.id);
+    const cardClass = val===null ? 'unassessed' : val==='no' ? 'no-concern' : val==='some' ? 'some-concern' : 'major-concern';
+    const pendingNote = val===null ? '<div class="text-xs text-muted">Not assessed — select a concern level.</div>' : '';
     const s = sugg[d.id];
     const suggHtml = s ? `<div class="suggestion-box ${s.level==='ok'?'ok':s.level==='warn'?'warn':'flag'}">${escHtml(s.text)}</div>` : '';
     const footnote = assessment['fn_'+d.id] || '';
@@ -979,6 +997,7 @@ function loadAssessment(){
       </div>
       <div class="domain-desc">${escHtml(d.desc)}</div>
       <div class="radio-group">${radioHtml}</div>
+      ${pendingNote}
       ${suggHtml}
       <div class="domain-footnote">
         <label style="font-size:.73rem;color:var(--text3)">Footnote (optional)</label>
@@ -1000,8 +1019,8 @@ function loadAssessment(){
 }
 
 function buildConfidenceDisplay(conf, assessment){
-  if(!conf) conf='High';
-  const cls = conf==='High'?'high':conf==='Moderate'?'moderate':conf==='Low'?'low':'verylow';
+  if(!conf) conf='Not assessed';
+  const cls = conf==='High'?'high':conf==='Moderate'?'moderate':conf==='Low'?'low':conf==='Very Low'?'verylow':'pending';
   const segs = ['High','Moderate','Low','Very Low'];
   const idx = segs.indexOf(conf);
   const barSegs = segs.map((s,i)=>{
@@ -1015,7 +1034,9 @@ function buildConfidenceDisplay(conf, assessment){
     if(v==='some') downs.push(d.short+': Some concern');
     else if(v==='major') downs.push(d.short+': Major concern');
   });
-  if(downs.length) downgradeInfo='<div class="downgrade-info">Downgraded for: '+escHtml(downs.join('; '))+'</div>';
+  const missing = unassessedDomains(assessment);
+  if(missing.length) downgradeInfo='<div class="downgrade-info">Overall confidence pending: '+missing.length+' of 6 domains not assessed ('+escHtml(missing.map(d=>d.short).join(', '))+').</div>';
+  else if(downs.length) downgradeInfo='<div class="downgrade-info">Downgraded for: '+escHtml(downs.join('; '))+'</div>';
   return `<div class="confidence-display">
     <div>
       <div class="confidence-label">Overall Confidence</div>
@@ -1027,12 +1048,13 @@ function buildConfidenceDisplay(conf, assessment){
 }
 
 function updateDomain(compId, domainId, value){
+  if(!DOMAINS.some(d=>d.id===domainId) || !CONCERN_LEVELS.includes(value)) return;
   if(!state.assessments[compId]) state.assessments[compId]={};
   state.assessments[compId][domainId]=value;
   // Update card class
   const card = document.getElementById('dc_'+domainId+'_'+compId);
   if(card){
-    card.classList.remove('no-concern','some-concern','major-concern');
+    card.classList.remove('no-concern','some-concern','major-concern','unassessed');
     card.classList.add(value==='no'?'no-concern':value==='some'?'some-concern':'major-concern');
   }
   // Update confidence display
@@ -1082,15 +1104,15 @@ function renderCINeMATable(){
     return;
   }
   const domainSymbol = (v)=>{
-    if(!v||v==='no')  return '<span class="domain-cell nc" title="No concern">&#9679;</span>';
+    if(v==='no')      return '<span class="domain-cell nc" title="No concern">&#9679;</span>';
     if(v==='some')    return '<span class="domain-cell sc" title="Some concern">&#9650;</span>';
     if(v==='major')   return '<span class="domain-cell mc" title="Major concern">&#9632;</span>';
-    return '<span class="domain-cell na">—</span>';
+    return '<span class="domain-cell na" title="Not assessed">—</span>';
   };
   const rows = state.comparisons.map(c=>{
     const assessment = state.assessments[c.id] || {};
     const conf = getConfidence(assessment);
-    const confCls = conf?conf.toLowerCase().replace(' ',''):'high';
+    const confCls = conf?conf.toLowerCase().replace(' ',''):'pending';
     const nameA = getTxShort(c.txA);
     const nameB = getTxShort(c.txB);
     const eff = c.effect!==null ? `<div class="effect-cell">${c.effect.toFixed(2)}</div><div class="effect-ci">(${c.ciLo!==null?c.ciLo.toFixed(2):'?'}, ${c.ciHi!==null?c.ciHi.toFixed(2):'?'})</div>` : '<span class="text-muted">—</span>';
@@ -1103,7 +1125,7 @@ function renderCINeMATable(){
       <td style="text-align:center">${domainSymbol(assessment.imp)}</td>
       <td style="text-align:center">${domainSymbol(assessment.het)}</td>
       <td style="text-align:center">${domainSymbol(assessment.inc)}</td>
-      <td><span class="conf-badge ${confCls}">${escHtml(conf||'High')}</span></td>
+      <td><span class="conf-badge ${confCls}">${escHtml(conf||'Not assessed')}</span></td>
       <td>
         <button class="btn btn-outline btn-sm" onclick="goAssess('${c.id}')">Edit</button>
       </td>
@@ -1153,7 +1175,7 @@ function generateNarrative(){
   const comp = state.comparisons.find(c=>c.id===compId);
   if(!comp){el.style.display='none';return;}
   const assessment = state.assessments[compId]||{};
-  const conf = getConfidence(assessment)||'High';
+  const conf = getConfidence(assessment)||'Not assessed';
   const nameA=getTxName(comp.txA), nameB=getTxName(comp.txB);
   const em=state.effectMeasure||'MD';
   let lines=[];
@@ -1162,8 +1184,7 @@ function generateNarrative(){
   lines.push('Overall confidence (CINeMA): '+conf);
   lines.push('');
   DOMAINS.forEach(d=>{
-    const v=assessment[d.id]||'no';
-    const label=v==='no'?'No concern':v==='some'?'Some concern':'Major concern';
+    const label=domainLabel(domainRating(assessment,d.id));
     const fn=assessment['fn_'+d.id]||'';
     lines.push(d.label+': '+label+(fn?' — '+fn:''));
   });
@@ -1175,7 +1196,10 @@ function generateNarrative(){
     if(v==='some') downs.push(d.label+' (some concern)');
     else if(v==='major') downs.push(d.label+' (major concern)');
   });
-  if(downs.length){
+  const missing = unassessedDomains(assessment);
+  if(missing.length){
+    narrative+='\n\nOverall confidence has not been assigned; unassessed domains: '+missing.map(d=>d.label).join('; ')+'.';
+  } else if(downs.length){
     narrative+='\n\nConfidence was downgraded due to: '+downs.join('; ')+'.';
   } else {
     narrative+='\n\nNo concerns were identified across any CINeMA domain; confidence was not downgraded.';
@@ -1186,15 +1210,10 @@ function generateNarrative(){
 
 function buildTableHTMLForExport(){
   const em = state.effectMeasure||'MD';
-  const domainSymbolText=(v)=>{
-    if(!v||v==='no') return 'No concern';
-    if(v==='some') return 'Some concern';
-    if(v==='major') return 'Major concern';
-    return '—';
-  };
+  const domainSymbolText=domainLabel;
   const rows = state.comparisons.map(c=>{
     const a=state.assessments[c.id]||{};
-    const conf=getConfidence(a)||'High';
+    const conf=getConfidence(a)||'Not assessed';
     const nA=getTxShort(c.txA), nB=getTxShort(c.txB);
     const eff=c.effect!==null?c.effect.toFixed(2)+' ('+( c.ciLo!==null?c.ciLo.toFixed(2):'?')+', '+(c.ciHi!==null?c.ciHi.toFixed(2):'?')+')':'NR';
     return '<tr><td>'+escHtml(nA)+' vs '+escHtml(nB)+'</td><td>'+escHtml(eff)+'</td>'
@@ -1221,12 +1240,11 @@ function downloadCSV(){
   const header=['Comparison',em+' (95% CI)'].concat(DOMAINS.map(d=>d.label)).concat(['Confidence']);
   const rows=state.comparisons.map(c=>{
     const a=state.assessments[c.id]||{};
-    const conf=getConfidence(a)||'High';
+    const conf=getConfidence(a)||'Not assessed';
     const nA=getTxShort(c.txA), nB=getTxShort(c.txB);
     const eff=c.effect!==null?c.effect.toFixed(2)+' ('+( c.ciLo!==null?c.ciLo.toFixed(2):'?')+', '+(c.ciHi!==null?c.ciHi.toFixed(2):'?')+')':'NR';
     return [nA+' vs '+nB, eff].concat(DOMAINS.map(d=>{
-      const v=a[d.id]||'no';
-      return v==='no'?'No concern':v==='some'?'Some concern':'Major concern';
+      return domainLabel(domainRating(a,d.id));
     })).concat([conf]).map(v=>{
       let s=String(v);
       // Prevent CSV formula injection
@@ -1247,12 +1265,11 @@ function downloadReport(){
   const tableHtml=buildTableHTMLForExport();
   const narratives=state.comparisons.map(c=>{
     const a=state.assessments[c.id]||{};
-    const conf=getConfidence(a)||'High';
+    const conf=getConfidence(a)||'Not assessed';
     const nA=getTxName(c.txA), nB=getTxName(c.txB);
     const eff=c.effect!==null?em+' '+formatEffect(c.effect,c.ciLo,c.ciHi):'NR';
     const domLines=DOMAINS.map(d=>{
-      const v=a[d.id]||'no';
-      const label=v==='no'?'No concern':v==='some'?'Some concern':'Major concern';
+      const label=domainLabel(domainRating(a,d.id));
       const fn=a['fn_'+d.id]||'';
       return '<li><strong>'+escHtml(d.label)+':</strong> '+escHtml(label)+(fn?' — '+escHtml(fn):'')+'</li>';
     }).join('');
